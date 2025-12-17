@@ -111,18 +111,19 @@ agent.run('打开微信并给张三发送"你好"')
 #### 2. 事件监听
 
 ```javascript
-import { emitter } from 'autoglm.js/utils/events'
+const agent = await AutoGLM.createAgent()
+const handler = agent.run('打开微信并给张三发送"你好"')
 
 // 监听任务执行事件
-emitter.on('thinking', (data) => {
+handler.on('thinking', (data) => {
   console.log('思考中:', data)
 })
 
-emitter.on('action', (result) => {
+handler.on('action', (result) => {
   console.log('执行动作:', result)
 })
 
-emitter.on('task_complete', (result) => {
+handler.on('task_complete', (result) => {
   console.log('任务完成:', result)
 })
 ```
