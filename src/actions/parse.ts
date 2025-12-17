@@ -1,26 +1,36 @@
 import type {
   ArrayExpression,
   AssignmentExpression,
+  Expression,
   ExpressionStatement,
   Literal,
-  SequenceExpression,
 } from 'acorn'
 import type { Action } from './types'
 import { parse } from 'acorn-loose'
 
-function getElements(node: SequenceExpression, index: number = 1) {
+function getElements(node: Expression, index: number = 1) {
+  if (node.type !== 'SequenceExpression') {
+    return undefined
+  }
   const _elements = (node.expressions[index] as AssignmentExpression).right as ArrayExpression
   return _elements.elements.map(e => (e as unknown as Literal).value as number) as [number, number]
 }
 
-function getText(node: SequenceExpression) {
+function getText(node: Expression) {
+  if (node.type !== 'SequenceExpression') {
+    return undefined
+  }
   const text = (node.expressions[1] as AssignmentExpression).right as Literal
   return text.value as string
 }
 
-function getActionType(node: SequenceExpression) {
-  const actionType = (node.expressions[0] as AssignmentExpression).right as Literal
-  return actionType.value as string
+function getActionType(node: Expression) {
+  if (node.type === 'SequenceExpression') {
+    return ((node.expressions[0] as AssignmentExpression).right as Literal).value as string
+  }
+  if (node.type === 'AssignmentExpression') {
+    return (node.right as Literal).value as string
+  }
 }
 
 /**
@@ -43,7 +53,7 @@ export function parseAction(actionStr: string): Action {
     if (ast.body[0].type !== 'DoWhileStatement') {
       throw new Error(`Invalid action format: ${actionStr}`)
     }
-    const expression = (ast.body[0].body as ExpressionStatement).expression as SequenceExpression
+    const expression = (ast.body[0].body as ExpressionStatement).expression
     const actionType = getActionType(expression)
 
     // Parse parameters based on action type
