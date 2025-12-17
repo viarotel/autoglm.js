@@ -16,10 +16,6 @@
       "description": "Language setting for the agent",
       "default": "cn"
     },
-    "verbose": {
-      "type": "boolean",
-      "description": "Whether to enable verbose logging"
-    },
     "deviceId": {
       "type": "string",
       "description": "Optional device identifier"

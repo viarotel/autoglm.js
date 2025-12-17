@@ -18,7 +18,6 @@ class AgentConfig {
     mode: 'cli',
     maxSteps: 100,
     lang: 'cn',
-    verbose: true,
     baseUrl: 'http://localhost:8000/v1',
     apiKey: '',
     systemPrompt: undefined,

@@ -170,7 +170,7 @@ export class PhoneAgent {
       // Check if finished
       const finished = action._metadata === 'finish' || result.should_finish
 
-      if (finished && this.agentConfig.verbose) {
+      if (finished) {
         // Check if action is FinishAction before accessing message
         const actionMessage = action._metadata === 'finish' ? (action as any).message : undefined
         const message = result.message || actionMessage || $t('task_completed')
@@ -188,9 +188,7 @@ export class PhoneAgent {
       }
     }
     catch (error) {
-      if (this.agentConfig.verbose) {
-        console.error(error)
-      }
+      console.error(error)
       return {
         success: false,
         finished: true,

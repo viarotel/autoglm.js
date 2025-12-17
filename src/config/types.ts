@@ -2,7 +2,6 @@ export interface AgentConfigType {
   mode: 'cli' | 'api'
   maxSteps: number
   lang: 'cn' | 'en'
-  verbose: boolean
   deviceId?: string
   systemPrompt?: string
   // ModelConfigType
