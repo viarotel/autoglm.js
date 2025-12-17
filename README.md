@@ -59,6 +59,7 @@ npx autoglm.js // 快捷使用
 
 ```json
 {
+  "$schema": "https://unpkg.com/autoglm.js@latest/schema/agent-config.schema.json",
   "maxSteps": 200,
   "lang": "cn",
   "baseUrl": "https://open.bigmodel.cn/api/paas/v4/",

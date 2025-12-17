@@ -23,17 +23,21 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./cli": "./dist/cli.mjs",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./schema": "./schema"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
+  "unpkg": "./schema",
+  "jsdelivr": "./schema",
   "types": "./dist/index.d.mts",
   "bin": {
     "autoglm": "./dist/cli.mjs"
   },
   "files": [
     "assets",
-    "dist"
+    "dist",
+    "schema"
   ],
   "scripts": {
     "test": "node dist/index.mjs",
