@@ -9,7 +9,4 @@ it('auto install adb', async () => {
     const installed = await installer.check()
     expect(installed).toBe(true)
   }
-  else {
-    expect(installed).toBe(true)
-  }
 })

@@ -32,7 +32,7 @@ export class ADBAutoInstaller {
       }
     }
 
-    return path.join(__dirname, '../../asset', filename)
+    return path.join(__dirname, '../asset', filename)
   }
 
   getCurrentShell() {
@@ -99,7 +99,6 @@ export class ADBAutoInstaller {
     const zipPath = this.resolveAssetPath('platform-tools-latest-darwin.zip')
     const platformToolsPath = path.join(this.installPath, 'platform-tools')
     const adbPath = path.join(platformToolsPath, 'adb')
-
     // 检查ZIP文件是否存在
     if (!await fs.pathExists(zipPath)) {
       throw new Error(`macOS platform tools not found at: ${zipPath}. Please ensure the asset file exists.`)
