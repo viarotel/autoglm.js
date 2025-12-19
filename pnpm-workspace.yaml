@@ -1,3 +1,4 @@
+ignoreWorkspaceRootCheck: true
 shellEmulator: true
 
 packages:
@@ -5,6 +6,7 @@ packages:
   - docs
   - packages/*
   - examples/*
+  - desktop
   - core
 
 onlyBuiltDependencies:
