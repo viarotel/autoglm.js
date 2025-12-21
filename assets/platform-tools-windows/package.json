@@ -1,7 +1,10 @@
 {
   "name": "@autoglm.js/platform-tools-windows",
+  "type": "module",
   "version": "36.0.0",
-  "os": ["win32"],
+  "os": [
+    "win32"
+  ],
   "description": "Platform tools for AutoGLM.js on Windows",
   "author": "FliPPeDround <flippedround@qq.com>",
   "license": "MIT",
@@ -17,8 +20,22 @@
     "agent",
     "ai"
   ],
-  "main": "platform-tools-latest-windows.zip",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
+    "dist",
     "platform-tools-latest-windows.zip"
-  ]
+  ],
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@autoglm.js/shared": "workspace:*"
+  }
 }

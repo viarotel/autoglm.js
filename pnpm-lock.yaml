@@ -51,11 +51,23 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1
 
-  assets/platform-tools-darwin: {}
+  assets/platform-tools-darwin:
+    devDependencies:
+      '@autoglm.js/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
 
-  assets/platform-tools-linux: {}
+  assets/platform-tools-linux:
+    devDependencies:
+      '@autoglm.js/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
 
-  assets/platform-tools-windows: {}
+  assets/platform-tools-windows:
+    devDependencies:
+      '@autoglm.js/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
 
   core:
     dependencies:
@@ -108,9 +120,16 @@ importers:
       tinyexec:
         specifier: ^1.0.2
         version: 1.0.2
-      unzipper:
-        specifier: ^0.12.3
-        version: 0.12.3
+    optionalDependencies:
+      '@autoglm.js/platform-tools-darwin':
+        specifier: workspace:*
+        version: link:../assets/platform-tools-darwin
+      '@autoglm.js/platform-tools-linux':
+        specifier: workspace:*
+        version: link:../assets/platform-tools-linux
+      '@autoglm.js/platform-tools-windows':
+        specifier: workspace:*
+        version: link:../assets/platform-tools-windows
 
   desktop:
     dependencies:
@@ -169,6 +188,16 @@ importers:
       vue-tsc:
         specifier: ^3.1.6
         version: 3.1.8(typescript@5.9.3)
+
+  packages/shared:
+    dependencies:
+      unzipper:
+        specifier: ^0.12.3
+        version: 0.12.3
+    devDependencies:
+      chmodr:
+        specifier: ^2.0.2
+        version: 2.0.2
 
   playground:
     dependencies:
@@ -380,8 +409,8 @@ packages:
     resolution: {integrity: sha512-Qkzpg2s9GnVV2I2BjRksUi43U5e6+zaQMcjoJy0C+C5oxaKl+fmckGDQFtRpZpZV0NQekuZZ+tGz7EA9TVnQtQ==}
     engines: {node: '>=12'}
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
-    resolution: {tarball: https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2}
+  '@electron/node-gyp@git+https://git@github.com:electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
+    resolution: {commit: 06b29aafb7708acef8b3669835c8a7857ebc92d2, repo: git@github.com:electron/node-gyp.git, type: git}
     version: 10.2.0-electron.1
     engines: {node: '>=12.13.0'}
     hasBin: true
@@ -1739,6 +1768,10 @@ packages:
 
   character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
+
+  chmodr@2.0.2:
+    resolution: {integrity: sha512-LTdYP5BGT+a0Gca7XDJDr6/jUZHW33hBd4hqds8dX6ALH20xFNaa6yqNUTKR9grIw35RzxTsgnWaR5lQrq7a1Q==}
+    engines: {node: '>=18'}
 
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -4483,7 +4516,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
+  '@electron/node-gyp@git+https://git@github.com:electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
     dependencies:
       env-paths: 2.2.1
       exponential-backoff: 3.1.3
@@ -4520,7 +4553,7 @@ snapshots:
 
   '@electron/rebuild@3.7.0':
     dependencies:
-      '@electron/node-gyp': https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2
+      '@electron/node-gyp': git+https://git@github.com:electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
       debug: 4.4.3
@@ -5892,6 +5925,8 @@ snapshots:
   change-case@5.4.4: {}
 
   character-entities@2.0.2: {}
+
+  chmodr@2.0.2: {}
 
   chokidar@3.6.0:
     dependencies:

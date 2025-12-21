@@ -44,12 +44,17 @@
     "dev": "tsdown --watch",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "node ./scripts/sync-version.mjs && pnpm build",
     "release": "bumpp",
     "typecheck": "tsc"
   },
   "dependencies": {
     "cfonts": "^3.3.1"
+  },
+  "optionalDependencies": {
+    "@autoglm.js/platform-tools-darwin": "workspace:*",
+    "@autoglm.js/platform-tools-linux": "workspace:*",
+    "@autoglm.js/platform-tools-windows": "workspace:*"
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
@@ -66,7 +71,6 @@
     "mitt": "^3.0.1",
     "openai": "^6.10.0",
     "std-env": "^3.10.0",
-    "tinyexec": "^1.0.2",
-    "unzipper": "^0.12.3"
+    "tinyexec": "^1.0.2"
   }
 }

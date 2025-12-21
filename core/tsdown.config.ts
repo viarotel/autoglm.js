@@ -8,5 +8,11 @@ export default defineConfig({
   dts: true,
   exports: true,
   publint: true,
-  external: ['cfonts'], // 将cfonts标记为外部依赖
+  external: [
+    'cfonts',
+    '@autoglm.js/shared',
+    '@autoglm.js/platform-tools-darwin',
+    '@autoglm.js/platform-tools-linux',
+    '@autoglm.js/platform-tools-windows',
+  ],
 })
