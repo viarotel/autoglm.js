@@ -10,6 +10,7 @@ import { commandAction } from './cli/action'
 import { printBanner } from './cli/banner'
 import { getConfig } from './cli/config/prompts'
 import { setAgentConfig } from './config'
+import { createAgentContext } from './context'
 import { $t } from './locales'
 import s from './utils/spinner'
 
@@ -41,7 +42,11 @@ async function main() {
   }
 
   // create agent
-  const agent = new PhoneAgent()
+  const ctx = createAgentContext({
+    ...config,
+    mode: 'cli',
+  })
+  const agent = new PhoneAgent(ctx)
 
   // 使用更好的交互界面
   intro(bold(cyan(`🤖 ${$t('prompt.interactiveMode')}`)))
