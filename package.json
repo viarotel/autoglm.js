@@ -20,17 +20,17 @@
     "ai"
   ],
   "scripts": {
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "dev": "pnpm -r dev",
-    "test": "vitest",
-    "dev:core": "cd core && pnpm dev",
-    "build:core": "cd core && pnpm build",
-    "dev:desktop": "cd desktop && pnpm dev",
-    "build:desktop": "cd desktop && pnpm build",
-    "prepublishOnly": "pnpm build",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint -- --fix",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "dev:core": "turbo dev --filter=./core",
+    "build:core": "turbo build --filter=./core",
+    "dev:desktop": "turbo dev --filter=./desktop",
+    "build:desktop": "turbo build --filter=./desktop",
+    "prepublishOnly": "turbo build",
     "release": "cd core && pnpm release",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "turbo typecheck",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
@@ -45,6 +45,7 @@
     "publint": "^0.3.16",
     "simple-git-hooks": "^2.13.1",
     "tsdown": "^0.17.3",
+    "turbo": "^2.7.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16",
     "vitest-package-exports": "^0.1.1"
