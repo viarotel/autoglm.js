@@ -29,7 +29,10 @@
     "dev:desktop": "turbo dev --filter=./desktop",
     "build:desktop": "turbo build --filter=./desktop",
     "prepublishOnly": "turbo build",
-    "release": "cd core && pnpm release",
+    "release:core": "cd core && pnpm release",
+    "release:adb_w": "cd assets/platform-tools-windows && pnpm release",
+    "release:adb_l": "cd assets/platform-tools-linux && pnpm release",
+    "release:adb_d": "cd assets/platform-tools-darwin && pnpm release",
     "typecheck": "turbo typecheck",
     "prepare": "simple-git-hooks"
   },

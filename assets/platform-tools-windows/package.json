@@ -33,7 +33,9 @@
   ],
   "scripts": {
     "dev": "tsdown --watch",
-    "build": "tsdown"
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build",
+    "release": "bumpp"
   },
   "devDependencies": {
     "@autoglm.js/shared": "workspace:*"
