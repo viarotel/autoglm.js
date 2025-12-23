@@ -7,8 +7,7 @@ packages:
   - packages/*
   - examples/*
   - desktop
-  - core
-  - assets/*
+  - packages/assets/*
 
 onlyBuiltDependencies:
   - esbuild
