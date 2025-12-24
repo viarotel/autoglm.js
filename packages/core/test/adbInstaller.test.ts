@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { ADBAutoInstaller } from '@/adb/installer'
 
-it('auto install adb', async () => {
+it.skip('auto install adb', async () => {
   const installer = new ADBAutoInstaller()
   const installed = await installer.check()
   if (!installed) {

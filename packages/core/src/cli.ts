@@ -10,9 +10,7 @@ import { commandAction } from './cli/action'
 import { printBanner } from './cli/banner'
 import { getConfig } from './cli/config/prompts'
 import { setAgentConfig } from './config'
-import { createAgentContext } from './context'
 import { $t } from './locales'
-import s from './utils/spinner'
 
 /**
  * AutoGLM.js CLI
@@ -29,24 +27,16 @@ async function main() {
   await checkSystemRequirements()
 
   const config = _config || await getConfig()
-  setAgentConfig({
-    ...config,
-    mode: 'cli',
-  })
+  setAgentConfig(config)
 
   // check system requirements
   await checkModelApi()
   if (!_config) {
-    s.stop($t('prompt.checking'))
     outro($t('prompt.done'))
   }
 
   // create agent
-  const ctx = createAgentContext({
-    ...config,
-    mode: 'cli',
-  })
-  const agent = new PhoneAgent(ctx)
+  const agent = new PhoneAgent()
 
   // 使用更好的交互界面
   intro(bold(cyan(`🤖 ${$t('prompt.interactiveMode')}`)))

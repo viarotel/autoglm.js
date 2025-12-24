@@ -1,5 +1,4 @@
 export interface AgentConfigType {
-  mode: 'cli' | 'api'
   maxSteps: number
   lang: 'cn' | 'en'
   deviceId?: string

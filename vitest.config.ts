@@ -7,6 +7,6 @@ export default defineConfig({
         inline: ['vitest-package-exports'],
       },
     },
-    projects: ['core'],
+    projects: ['packages/core'],
   },
 })

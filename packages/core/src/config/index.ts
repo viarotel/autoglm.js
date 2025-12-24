@@ -3,11 +3,18 @@ import { SYSTEM_PROMPT_EN } from '@/constants/prompts_en'
 import { SYSTEM_PROMPT_ZH } from '@/constants/prompts_zh'
 
 /**
+ * Get the system prompt based on the language.
+ */
+export function getSystemPrompt(lang: 'cn' | 'en'): string {
+  return lang === 'cn' ? SYSTEM_PROMPT_ZH : SYSTEM_PROMPT_EN
+}
+
+/**
  * Configuration for the model.
  */
-class AgentConfigStore {
+class AgentConfig {
+  private static instance: AgentConfig | null = null
   private config: AgentConfigType = {
-    mode: 'cli',
     maxSteps: 100,
     lang: 'cn',
     baseUrl: 'http://localhost:8000/v1',
@@ -20,44 +27,36 @@ class AgentConfigStore {
     frequencyPenalty: 0.2,
   }
 
-  constructor(initialConfig?: Partial<AgentConfigType>) {
-    if (initialConfig) {
-      this.setConfig(initialConfig)
+  public static getInstance(): AgentConfig {
+    if (AgentConfig.instance === null) {
+      AgentConfig.instance = new AgentConfig()
     }
-    this.ensureSystemPrompt()
+    return AgentConfig.instance
+  }
+
+  private constructor() {
+    if (this.config.systemPrompt === undefined) {
+      this.config.systemPrompt = getSystemPrompt(this.config.lang)
+    }
   }
 
   setConfig(config: Partial<AgentConfigType>) {
     this.config = { ...this.config, ...config }
-    this.ensureSystemPrompt()
   }
 
   getConfig(): AgentConfigType {
     return this.config
   }
-
-  private ensureSystemPrompt() {
-    if (!this.config.systemPrompt) {
-      this.config.systemPrompt = this.config.lang === 'cn'
-        ? SYSTEM_PROMPT_ZH
-        : SYSTEM_PROMPT_EN
-    }
-  }
 }
 
-const defaultAgentConfigStore = new AgentConfigStore()
+const agentConfig = AgentConfig.getInstance()
 
-export function createAgentConfigStore(config?: Partial<AgentConfigType>) {
-  return new AgentConfigStore(config)
+export function getAgentConfig() {
+  return agentConfig.getConfig()
 }
 
-export function getAgentConfig(store: AgentConfigStore = defaultAgentConfigStore) {
-  return store.getConfig()
+export function setAgentConfig(config: Partial<AgentConfigType>) {
+  agentConfig.setConfig(config)
 }
 
-export function setAgentConfig(config: Partial<AgentConfigType>, store: AgentConfigStore = defaultAgentConfigStore) {
-  store.setConfig(config)
-}
-
-export { AgentConfigStore, defaultAgentConfigStore }
 export type { AgentConfigType }

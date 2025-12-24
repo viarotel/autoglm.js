@@ -1,7 +1,7 @@
 import { AutoGLM } from 'autoglm.js'
 
 async function main() {
-  const agent = await AutoGLM.createAgent({
+  const agent = new AutoGLM({
     maxSteps: 100,
     lang: 'cn',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4/',
@@ -9,10 +9,10 @@ async function main() {
     model: 'autoglm-phone',
   })
 
-  const handler = agent.run('返回桌面')
-  handler.on('*', (_type, _message) => {
-    // console.log(type, message)
-  })
+  // agent.on('*', (type, message) => {
+  //   console.log(type, message)
+  // })
+  agent.run('打开抖音')
 }
 
 main()

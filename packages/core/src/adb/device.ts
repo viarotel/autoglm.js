@@ -1,14 +1,11 @@
-import { exec } from 'tinyexec'
 import { APP_PACKAGES } from '@/constants/app'
-import { getAdbPrefix } from './utils'
+import { runAdbCommand } from './utils'
 
 /**
  * Get the currently focused app name.
  */
-export async function getCurrentApp(deviceId?: string): Promise<string> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  const result = await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'dumpsys', 'window'])
+export async function getCurrentApp(): Promise<string> {
+  const result = await runAdbCommand('shell', 'dumpsys', 'window')
   const output = result.stdout
 
   // Parse window focus info
@@ -28,22 +25,18 @@ export async function getCurrentApp(deviceId?: string): Promise<string> {
 /**
  * Tap at the specified coordinates.
  */
-export async function tap(x: number, y: number, deviceId?: string, delay: number = 1.0): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'tap', x.toString(), y.toString()])
+export async function tap(x: number, y: number, delay: number = 1.0): Promise<void> {
+  await runAdbCommand('shell', 'input', 'tap', x.toString(), y.toString())
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
 /**
  * Double tap at the specified coordinates.
  */
-export async function doubleTap(x: number, y: number, deviceId?: string, delay: number = 1.0): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'tap', x.toString(), y.toString()])
+export async function doubleTap(x: number, y: number, delay: number = 1.0): Promise<void> {
+  await runAdbCommand('shell', 'input', 'tap', x.toString(), y.toString())
   await new Promise(resolve => setTimeout(resolve, 100))
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'tap', x.toString(), y.toString()])
+  await runAdbCommand('shell', 'input', 'tap', x.toString(), y.toString())
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
@@ -54,12 +47,9 @@ export async function longPress(
   x: number,
   y: number,
   durationMs: number = 3000,
-  deviceId?: string,
   delay: number = 1.0,
 ): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'swipe', x.toString(), y.toString(), x.toString(), y.toString(), durationMs.toString()])
+  await runAdbCommand('shell', 'input', 'swipe', x.toString(), y.toString(), x.toString(), y.toString(), durationMs.toString())
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
@@ -72,53 +62,45 @@ export async function swipe(
   endX: number,
   endY: number,
   durationMs?: number,
-  deviceId?: string,
   delay: number = 1.0,
 ): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
   // Calculate duration if not provided
   if (durationMs === undefined) {
     const distSq = (startX - endX) ** 2 + (startY - endY) ** 2
     durationMs = Math.max(1000, Math.min(Math.floor(distSq / 1000), 2000))
   }
 
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'swipe', startX.toString(), startY.toString(), endX.toString(), endY.toString(), durationMs.toString()])
+  await runAdbCommand('shell', 'input', 'swipe', startX.toString(), startY.toString(), endX.toString(), endY.toString(), durationMs.toString())
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
 /**
  * Press the back button.
  */
-export async function back(deviceId?: string, delay: number = 1.0): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'keyevent', '4'])
+export async function back(delay: number = 1.0): Promise<void> {
+  await runAdbCommand('shell', 'input', 'keyevent', '4')
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
 /**
  * Press the home button.
  */
-export async function home(deviceId?: string, delay: number = 1.0): Promise<void> {
-  const adbPrefix = getAdbPrefix(deviceId)
-
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'input', 'keyevent', 'KEYCODE_HOME'])
+export async function home(delay: number = 1.0): Promise<void> {
+  await runAdbCommand('shell', 'input', 'keyevent', 'KEYCODE_HOME')
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
 }
 
 /**
  * Launch an app by name.
  */
-export async function launchApp(appName: string, deviceId?: string, delay: number = 1.0): Promise<boolean> {
+export async function launchApp(appName: string, delay: number = 1.0): Promise<boolean> {
   if (!APP_PACKAGES[appName]) {
     return false
   }
 
-  const adbPrefix = getAdbPrefix(deviceId)
   const appPackage = APP_PACKAGES[appName]
 
-  await exec(adbPrefix[0], [...adbPrefix.slice(1), 'shell', 'monkey', '-p', appPackage, '-c', 'android.intent.category.LAUNCHER', '1'])
+  await runAdbCommand('shell', 'monkey', '-p', appPackage, '-c', 'android.intent.category.LAUNCHER', '1')
   await new Promise(resolve => setTimeout(resolve, delay * 1000))
   return true
 }

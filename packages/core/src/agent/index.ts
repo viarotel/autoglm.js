@@ -1,13 +1,13 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import type { StepResult } from './types'
 import type { AgentConfigType } from '@/config'
-import type { AgentContext } from '@/context'
-import { bold } from 'kolorist'
 import { ActionHandler, finish } from '@/actions/handler'
 import { parseAction } from '@/actions/parse'
 import { getCurrentApp, getScreenshot } from '@/adb'
 import { getAgentConfig } from '@/config'
+import { $t } from '@/locales'
 import { MessageBuilder, ModelClient } from '@/model/client'
+import { emit, EventType } from '@/utils/events'
 
 export class PhoneAgent {
   private agentConfig: AgentConfigType
@@ -17,17 +17,11 @@ export class PhoneAgent {
   private stepCount: number = 0
 
   constructor(
-    private ctx: AgentContext,
     confirmationCallback?: (message: string) => Promise<boolean>,
     takeoverCallback?: (message: string) => Promise<void>,
   ) {
-    this.agentConfig = getAgentConfig(ctx.configStore)
-    this.modelClient = new ModelClient({
-      configStore: ctx.configStore,
-      logger: ctx.logger,
-      spinner: ctx.spinner,
-      t: ctx.t,
-    })
+    this.agentConfig = getAgentConfig()
+    this.modelClient = new ModelClient()
     this.actionHandler = new ActionHandler(
       this.agentConfig.deviceId,
       {
@@ -42,8 +36,7 @@ export class PhoneAgent {
    */
   async run(task: string): Promise<string> {
     // Reset state
-    this.context = []
-    this.stepCount = 0
+    this.reset()
 
     // First step with user prompt
     let result = await this._executeStep(task, true)
@@ -61,7 +54,7 @@ export class PhoneAgent {
       }
     }
 
-    return 'Max steps reached'
+    throw new Error('Max steps reached')
   }
 
   /**
@@ -135,8 +128,6 @@ export class PhoneAgent {
 
     // Get model response
     try {
-      this.agentConfig.mode === 'cli' && this.ctx.spinner.start(`☁️  ${bold(this.ctx.t('think'))}`)
-
       const response = await this.modelClient.request(this.context)
 
       // Parse action from response
@@ -150,7 +141,7 @@ export class PhoneAgent {
         action = finish(response.action)
       }
 
-      this.ctx.logger('action', action)
+      emit(EventType.ACTION, action)
 
       // Remove image from context to save space
       this.context[this.context.length - 1] = MessageBuilder.removeImagesFromMessage(
@@ -177,8 +168,8 @@ export class PhoneAgent {
       if (finished) {
         // Check if action is FinishAction before accessing message
         const actionMessage = action._metadata === 'finish' ? (action as any).message : undefined
-        const message = result.message || actionMessage || this.ctx.t('task_completed')
-        this.ctx.logger('task_complete', message)
+        const message = result.message || actionMessage || $t('task_completed')
+        emit(EventType.TASK_COMPLETE, message)
       }
 
       // Check if action is FinishAction before accessing message

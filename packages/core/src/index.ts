@@ -1,40 +1,49 @@
 import type { AgentConfigType } from './config'
-import type { AgentContext } from './context'
+import { emit, emitter, EventType } from '@/utils/events'
+import { ADBAutoInstaller } from './adb/installer'
+import { ADBKeyboard } from './adb/keyboard'
 import { PhoneAgent } from './agent'
 import { checkModelApi, checkSystemRequirements } from './check'
-import { createAgentContext } from './context'
+import { setAgentConfig } from './config'
 
 export class AutoGLM {
-  private ctx: AgentContext
   private phoneAgent: PhoneAgent
 
-  private constructor(ctx: AgentContext) {
-    this.ctx = ctx
-    this.phoneAgent = new PhoneAgent(ctx)
-  }
-
-  public static async createAgent(config: AgentConfigType): Promise<AutoGLM> {
-    const ctx = createAgentContext({
-      ...config,
-      mode: 'api',
-    })
-    const instance = new AutoGLM(ctx)
-    await checkSystemRequirements(ctx.configStore, ctx.t)
-    await checkModelApi(ctx.configStore, ctx.t)
-
-    return instance
-  }
-
-  public run(task: string) {
-    this.phoneAgent.run(task)
-    return this.ctx.emitter
-  }
-
-  public checkModelApi() {
-    return checkModelApi(this.ctx.configStore, this.ctx.t)
+  private constructor(config: AgentConfigType) {
+    setAgentConfig(config)
+    this.phoneAgent = new PhoneAgent()
   }
 
   public checkSystemRequirements() {
-    return checkSystemRequirements(this.ctx.configStore, this.ctx.t)
+    return checkSystemRequirements()
+  }
+
+  public checkModelApi() {
+    return checkModelApi()
+  }
+
+  public run(task: string) {
+    emit(EventType.START, task)
+    return this.phoneAgent.run(task)
+  }
+
+  public on(type: EventType | '*', handler: (data: any) => void) {
+    emitter.on(type, handler)
+    return this
+  }
+
+  public off(type: EventType | '*', handler: (data: any) => void) {
+    emitter.off(type, handler)
+    return this
+  }
+
+  public async installADB() {
+    const installer = new ADBAutoInstaller()
+    await installer.install()
+  }
+
+  public async installADBKeyboard() {
+    const keyboard = new ADBKeyboard()
+    await keyboard.installKeyboard()
   }
 }
