@@ -5,6 +5,9 @@ export { back, doubleTap, getCurrentApp, home, launchApp, longPress, swipe, tap 
 // Input control
 export { clearText, detectAndSetAdbKeyboard, restoreKeyboard, typeText } from './input'
 
+// Manager
+export { ADBManager } from './manager'
+
 // Screenshot
 export { getScreenshot } from './screenshot'
 

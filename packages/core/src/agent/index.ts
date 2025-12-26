@@ -1,34 +1,34 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import type { StepResult } from './types'
-import type { AgentConfigType } from '@/config'
+import type { AgentContext } from '@/context'
 import { ActionHandler, finish } from '@/actions/handler'
 import { parseAction } from '@/actions/parse'
 import { getCurrentApp, getScreenshot } from '@/adb'
-import { getAgentConfig } from '@/config'
-import { $t } from '@/locales'
+import { EventType } from '@/context'
 import { MessageBuilder, ModelClient } from '@/model/client'
-import { emit, EventType } from '@/utils/events'
 
 export class PhoneAgent {
-  private agentConfig: AgentConfigType
+  private ctx: AgentContext
   private modelClient: ModelClient
   private actionHandler: ActionHandler
   private context: ChatCompletionMessageParam[] = []
   private stepCount: number = 0
 
   constructor(
+    context: AgentContext,
     confirmationCallback?: (message: string) => Promise<boolean>,
     takeoverCallback?: (message: string) => Promise<void>,
   ) {
-    this.agentConfig = getAgentConfig()
-    this.modelClient = new ModelClient()
-    this.actionHandler = new ActionHandler(
-      this.agentConfig.deviceId,
-      {
-        confirmationCallback,
-        takeoverCallback,
-      },
-    )
+    this.ctx = context
+    this.modelClient = new ModelClient(context)
+    this.actionHandler = new ActionHandler(this.agentConfig.deviceId, {
+      confirmationCallback,
+      takeoverCallback,
+    })
+  }
+
+  private get agentConfig() {
+    return this.ctx.getConfig()
   }
 
   /**
@@ -141,7 +141,7 @@ export class PhoneAgent {
         action = finish(response.action)
       }
 
-      emit(EventType.ACTION, action)
+      this.ctx.emit(EventType.ACTION, action)
 
       // Remove image from context to save space
       this.context[this.context.length - 1] = MessageBuilder.removeImagesFromMessage(
@@ -168,8 +168,8 @@ export class PhoneAgent {
       if (finished) {
         // Check if action is FinishAction before accessing message
         const actionMessage = action._metadata === 'finish' ? (action as any).message : undefined
-        const message = result.message || actionMessage || $t('task_completed')
-        emit(EventType.TASK_COMPLETE, message)
+        const message = result.message || actionMessage || 'Task completed'
+        this.ctx.emit(EventType.TASK_COMPLETE, message)
       }
 
       // Check if action is FinishAction before accessing message

@@ -1,17 +1,26 @@
-import type { ADBKeyboardCheckResult } from './types'
+import type { AgentContext } from '@/context'
 import path from 'node:path'
 import { __dirname } from '@autoglm.js/shared'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { runAdbCommand } from './utils'
 
 export class ADBKeyboard {
+  private ctx: AgentContext
+  constructor(context: AgentContext) {
+    this.ctx = context
+  }
+
+  get deviceId() {
+    return this.ctx.getConfig().deviceId
+  }
+
   /**
    * Check ADB Keyboard is installed.
    */
-  async isKeyboardInstalled(): Promise<ADBKeyboardCheckResult> {
+  async isKeyboardInstalled() {
     try {
       // 首先检查已启用的输入法
-      const enabledResult = await runAdbCommand('shell', 'ime', 'list', '-s')
+      const enabledResult = await runAdbCommand(this.deviceId, 'shell', 'ime', 'list', '-s')
       const enabledImeList = enabledResult.stdout.trim()
 
       if (enabledImeList.includes('com.android.adbkeyboard/.AdbIME')) {
@@ -35,8 +44,8 @@ export class ADBKeyboard {
   async installKeyboard() {
     try {
       const apkPath = path.join(__dirname, '../asset/ADBKeyboard.apk')
-      await runAdbCommand('install', apkPath)
-      await runAdbCommand('shell', 'ime', 'enable', 'com.android.adbkeyboard/.AdbIME')
+      await runAdbCommand(this.deviceId, 'install', apkPath)
+      await runAdbCommand(this.deviceId, 'shell', 'ime', 'enable', 'com.android.adbkeyboard/.AdbIME')
     }
     catch (error) {
       return {

@@ -8,6 +8,11 @@ export interface DeviceInfo {
   status: 'device' | 'unauthorized' | 'offline'
   connectionType: ConnectionType
   model?: string
+  brand?: string
+  manufacturer?: string
+  device?: string
+  androidVersion?: string
+  apiLevel?: string
 }
 
 /**

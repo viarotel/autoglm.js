@@ -12,3 +12,8 @@ export interface AgentConfigType {
   topP: number
   frequencyPenalty: number
 }
+
+export interface EventData {
+  message: any
+  time: string
+}

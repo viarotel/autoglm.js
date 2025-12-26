@@ -1,8 +1,7 @@
 import type { ModelResponse } from './types'
-import type { AgentConfigType } from '@/config'
+import type { AgentContext } from '@/context'
 import OpenAI from 'openai'
-import { getAgentConfig } from '@/config'
-import { emit, EventType } from '@/utils/events'
+import { EventType } from '@/context'
 /**
  * Helper class for building conversation messages.
  */
@@ -84,13 +83,19 @@ export class MessageBuilder {
  * Client for interacting with OpenAI-compatible vision-language models.
  */
 export class ModelClient {
+  private ctx: AgentContext
   private client: OpenAI
 
-  constructor(private config: AgentConfigType = getAgentConfig()) {
+  constructor(ctx: AgentContext) {
+    this.ctx = ctx
     this.client = new OpenAI({
-      baseURL: config.baseUrl,
-      apiKey: config.apiKey,
+      baseURL: ctx.getConfig().baseUrl,
+      apiKey: ctx.getConfig().apiKey,
     })
+  }
+
+  private get config() {
+    return this.ctx.getConfig()
   }
 
   /**
@@ -112,7 +117,7 @@ export class ModelClient {
     }
     const [thinking, action] = this._parseResponse(rawContent)
 
-    emit(EventType.THINKING, thinking)
+    this.ctx.emit(EventType.THINKING, thinking)
     return { thinking, action, rawContent }
   }
 

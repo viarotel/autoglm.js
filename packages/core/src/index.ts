@@ -1,49 +1,49 @@
-import type { AgentConfigType } from './config'
-import { emit, emitter, EventType } from '@/utils/events'
-import { ADBAutoInstaller } from './adb/installer'
-import { ADBKeyboard } from './adb/keyboard'
+import type { AgentConfigType } from './context/types'
+import { ADBManager } from './adb/manager'
 import { PhoneAgent } from './agent'
 import { checkModelApi, checkSystemRequirements } from './check'
-import { setAgentConfig } from './config'
+import { AgentContext, EventType } from './context'
 
 export class AutoGLM {
   private phoneAgent: PhoneAgent
+  private ctx: AgentContext
+  private adbManager: ADBManager
 
-  private constructor(config: AgentConfigType) {
-    setAgentConfig(config)
-    this.phoneAgent = new PhoneAgent()
+  constructor(config: Partial<AgentConfigType>) {
+    this.ctx = new AgentContext(config)
+    this.phoneAgent = new PhoneAgent(this.ctx)
+    this.adbManager = new ADBManager(this.ctx)
+  }
+
+  public get adb() {
+    return this.adbManager
   }
 
   public checkSystemRequirements() {
-    return checkSystemRequirements()
+    return checkSystemRequirements(this.ctx)
   }
 
   public checkModelApi() {
-    return checkModelApi()
+    return checkModelApi(this.ctx)
   }
 
   public run(task: string) {
-    emit(EventType.START, task)
+    this.ctx.emit(EventType.START, task)
     return this.phoneAgent.run(task)
   }
 
-  public on(type: EventType | '*', handler: (data: any) => void) {
-    emitter.on(type, handler)
+  public on(type: EventType, handler: (data: any) => void) {
+    this.ctx.on(type, handler)
     return this
   }
 
-  public off(type: EventType | '*', handler: (data: any) => void) {
-    emitter.off(type, handler)
+  public off(type: EventType, handler: (data: any) => void) {
+    this.ctx.off(type, handler)
     return this
   }
+}
 
-  public async installADB() {
-    const installer = new ADBAutoInstaller()
-    await installer.install()
-  }
-
-  public async installADBKeyboard() {
-    const keyboard = new ADBKeyboard()
-    await keyboard.installKeyboard()
-  }
+export * from './adb/types'
+export {
+  EventType,
 }

@@ -41,17 +41,17 @@ export async function typeText(text: string, deviceId?: string): Promise<void> {
   await detectAndSetAdbKeyboard(deviceId)
   const encodedText = Buffer.from(text, 'utf8').toString('base64')
   // Type the text
-  await runAdbCommand('shell', 'am', 'broadcast', '-a', 'ADB_INPUT_B64', '--es', 'msg', encodedText)
+  await runAdbCommand(deviceId, 'shell', 'am', 'broadcast', '-a', 'ADB_INPUT_B64', '--es', 'msg', encodedText)
   await new Promise(resolve => setTimeout(resolve, 500))
 }
 
 /**
  * Clear text by sending backspace keystrokes.
  */
-export async function clearText(count: number = 100): Promise<void> {
+export async function clearText(count: number = 100, deviceId?: string): Promise<void> {
   // Send backspace key multiple times
   for (let i = 0; i < count; i++) {
-    await runAdbCommand('shell', 'input', 'keyevent', '67')
+    await runAdbCommand(deviceId, 'shell', 'input', 'keyevent', '67')
   }
   await new Promise(resolve => setTimeout(resolve, 500))
 }

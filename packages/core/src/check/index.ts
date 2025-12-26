@@ -1,16 +1,16 @@
+import type { AgentContext } from '@/context'
 import OpenAI from 'openai'
 import { ADBConnection } from '@/adb/connection'
 import { ADBKeyboard } from '@/adb/keyboard'
-import { getAgentConfig } from '@/config'
 import { ErrorCode } from '@/constants'
 import { getErrorMessage } from '@/utils/errorMessage'
 
-export async function checkSystemRequirements() {
+export async function checkSystemRequirements(ctx: AgentContext) {
   /**
    * check adb connection
    */
   const conn = new ADBConnection()
-  const key = new ADBKeyboard()
+  const key = new ADBKeyboard(ctx)
 
   try {
     const result = await conn.version()
@@ -51,8 +51,8 @@ export async function checkSystemRequirements() {
   }
 }
 
-export async function checkModelApi() {
-  const config = getAgentConfig()
+export async function checkModelApi(ctx: AgentContext) {
+  const config = ctx.getConfig()
   try {
     const client = new OpenAI({
       baseURL: config.baseUrl,

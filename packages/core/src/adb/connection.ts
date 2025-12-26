@@ -10,12 +10,15 @@ export class ADBConnection {
     try {
       const result = await exec('adb', ['version'])
       const versionLine = result.stdout.trim().split('\n')[0]
-      return { success: true, message: versionLine }
+      const versionMatch = versionLine.match(/(\d+\.\d+\.\d+)/)
+      const version = versionMatch ? versionMatch[1] : null
+      return { success: true, message: versionLine, version }
     }
     catch (error) {
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error',
+        version: null,
       }
     }
   }
@@ -102,7 +105,7 @@ export class ADBConnection {
     // Skip the first line (header)
     const deviceLines = lines.slice(1).filter(line => line.trim())
 
-    return deviceLines.map((line) => {
+    const devices = await Promise.all(deviceLines.map(async (line) => {
       const parts = line.split(/\s+/)
       const deviceId = parts[0]
       const status = parts[1] as 'device' | 'unauthorized' | 'offline'
@@ -119,13 +122,53 @@ export class ADBConnection {
         }
       }
 
-      return {
+      // Get detailed device info
+      const deviceInfo: DeviceInfo = {
         deviceId,
         status,
         connectionType,
         model,
       }
-    })
+
+      // Only get detailed info if device is online
+      if (status === 'device') {
+        try {
+          const [brand, manufacturer, device, androidVersion, apiLevel] = await Promise.all([
+            this.getDeviceProp(deviceId, 'ro.product.brand'),
+            this.getDeviceProp(deviceId, 'ro.product.manufacturer'),
+            this.getDeviceProp(deviceId, 'ro.product.device'),
+            this.getDeviceProp(deviceId, 'ro.build.version.release'),
+            this.getDeviceProp(deviceId, 'ro.build.version.sdk'),
+          ])
+
+          deviceInfo.brand = brand || undefined
+          deviceInfo.manufacturer = manufacturer || undefined
+          deviceInfo.device = device || undefined
+          deviceInfo.androidVersion = androidVersion || undefined
+          deviceInfo.apiLevel = apiLevel || undefined
+        }
+        catch {
+        }
+      }
+
+      return deviceInfo
+    }))
+
+    return devices
+  }
+
+  /**
+   * Get device property value.
+   */
+  private async getDeviceProp(deviceId: string, prop: string): Promise<string | null> {
+    try {
+      const result = await exec('adb', ['-s', deviceId, 'shell', 'getprop', prop])
+      const value = result.stdout.trim()
+      return value || null
+    }
+    catch {
+      return null
+    }
   }
 
   /**

@@ -32,28 +32,36 @@
     "schema"
   ],
   "scripts": {
+    "start": "node dist/index.mjs",
     "build": "tsdown",
+    "hmr": "tsx watch src/index.tsx",
     "dev": "tsdown --watch",
     "prepublishOnly": "pnpm build",
-    "release": "bumpp",
-    "typecheck": "tsc"
+    "release": "bumpp"
   },
   "dependencies": {
-    "autoglm.js": "workspace:*",
-    "cfonts": "^3.3.1",
     "ink": "^6.6.0",
+    "ink-big-text": "^2.0.0",
+    "ink-gradient": "^3.0.0",
+    "ink-scroll-list": "^0.3.3",
+    "ink-scroll-view": "^0.3.2",
+    "ink-text-input": "^6.0.0",
+    "node-notifier": "^10.0.1",
     "react": "^19.2.3"
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
     "@types/fs-extra": "^11.0.4",
     "@types/minimist": "^1.2.5",
+    "@types/node-notifier": "^8.0.5",
     "@types/react": "^19.2.7",
+    "autoglm.js": "workspace:*",
     "consola": "^3.4.2",
     "dayjs": "^1.11.19",
     "fs-extra": "^11.3.3",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
-    "std-env": "^3.10.0"
+    "std-env": "^3.10.0",
+    "tsx": "^4.21.0"
   }
 }

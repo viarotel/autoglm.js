@@ -12,8 +12,7 @@ export function getSystemPrompt(lang: 'cn' | 'en'): string {
 /**
  * Configuration for the model.
  */
-class AgentConfig {
-  private static instance: AgentConfig | null = null
+export class AgentConfigStore {
   private config: AgentConfigType = {
     maxSteps: 100,
     lang: 'cn',
@@ -27,21 +26,22 @@ class AgentConfig {
     frequencyPenalty: 0.2,
   }
 
-  public static getInstance(): AgentConfig {
-    if (AgentConfig.instance === null) {
-      AgentConfig.instance = new AgentConfig()
-    }
-    return AgentConfig.instance
-  }
-
-  private constructor() {
-    if (this.config.systemPrompt === undefined) {
+  private ensureSystemPrompt() {
+    if (!this.config.systemPrompt) {
       this.config.systemPrompt = getSystemPrompt(this.config.lang)
     }
   }
 
+  constructor(initialConfig?: Partial<AgentConfigType>) {
+    if (initialConfig) {
+      this.setConfig(initialConfig)
+    }
+    this.ensureSystemPrompt()
+  }
+
   setConfig(config: Partial<AgentConfigType>) {
     this.config = { ...this.config, ...config }
+    this.ensureSystemPrompt()
   }
 
   getConfig(): AgentConfigType {
@@ -49,14 +49,6 @@ class AgentConfig {
   }
 }
 
-const agentConfig = AgentConfig.getInstance()
-
-export function getAgentConfig() {
-  return agentConfig.getConfig()
+export function createAgentConfigStore(config?: Partial<AgentConfigType>) {
+  return new AgentConfigStore(config)
 }
-
-export function setAgentConfig(config: Partial<AgentConfigType>) {
-  agentConfig.setConfig(config)
-}
-
-export type { AgentConfigType }
