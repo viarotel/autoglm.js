@@ -39,6 +39,7 @@ export interface AgentActions {
   refreshDevices: () => Promise<void>
   checkSystem: () => Promise<void>
   checkApi: () => Promise<void>
+  navigate: (path: string, options?: { replace?: boolean }) => void
 }
 
 export type AgentContextValue = AgentState & AgentActions

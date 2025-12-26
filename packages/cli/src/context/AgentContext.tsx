@@ -2,7 +2,10 @@ import type { DeviceInfo } from 'autoglm.js'
 import type { ReactNode } from 'react'
 import type { AgentContextValue, AgentEvent } from '@/config/types'
 import { AutoGLM, EventType } from 'autoglm.js'
+
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+
+type NavigateFunction = (path: string, options?: { replace?: boolean }) => void
 
 const AgentContext = createContext<AgentContextValue | null>(null)
 
@@ -24,9 +27,10 @@ interface AgentProviderProps {
     model: string
     deviceId?: string
   }
+  navigate?: NavigateFunction
 }
 
-export function AgentProvider({ children, config }: AgentProviderProps) {
+export function AgentProvider({ children, config, navigate }: AgentProviderProps) {
   const [isRunning, setIsRunning] = useState(false)
   const [currentTask, setCurrentTask] = useState<string | null>(null)
   const [events, setEvents] = useState<AgentEvent[]>([])
@@ -201,6 +205,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     refreshDevices,
     checkSystem,
     checkApi,
+    navigate: navigate || (() => {}),
   }
 
   return (

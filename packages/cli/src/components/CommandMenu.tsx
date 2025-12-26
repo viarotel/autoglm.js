@@ -1,30 +1,27 @@
 import type { ScrollListRef } from 'ink-scroll-list'
+import type { CommandHandler } from '@/commands/commands'
 import { Box, Text, useInput } from 'ink'
 import { ScrollList } from 'ink-scroll-list'
 import { useMemo, useRef, useState } from 'react'
 
-const COMMANDS = {
-  help: 'Show help',
-  exit: 'Exit the program',
-} as const
-
 interface CommandMenuProps {
   query: string
+  commands: CommandHandler[]
   onCommandSelect: (command: string) => void
 }
 
-export function CommandMenu({ query, onCommandSelect }: CommandMenuProps) {
+export function CommandMenu({ query, commands, onCommandSelect }: CommandMenuProps) {
   const listRef = useRef<ScrollListRef>(null)
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const filteredCommands = useMemo(() => {
     const searchTerm = query.slice(1).toLowerCase()
-    return Object.entries(COMMANDS).filter(([command]) =>
-      command.toLowerCase().includes(searchTerm),
+    return commands.filter(cmd =>
+      cmd.name.toLowerCase().includes(searchTerm),
     )
-  }, [query])
+  }, [query, commands])
 
-  useInput((input, key) => {
+  useInput((_input, key) => {
     if (key.upArrow) {
       const newIndex = listRef.current?.selectPrevious() ?? 0
       setSelectedIndex(newIndex)
@@ -34,7 +31,7 @@ export function CommandMenu({ query, onCommandSelect }: CommandMenuProps) {
       setSelectedIndex(newIndex)
     }
     if (key.return) {
-      const selectedCommand = filteredCommands[selectedIndex]?.[0]
+      const selectedCommand = filteredCommands[selectedIndex]?.name
       if (selectedCommand) {
         onCommandSelect(selectedCommand)
       }
@@ -48,17 +45,17 @@ export function CommandMenu({ query, onCommandSelect }: CommandMenuProps) {
         selectedIndex={selectedIndex}
         onSelectionChange={setSelectedIndex}
       >
-        {filteredCommands.map(([command, description], i) => (
-          <Box key={command} flexDirection="row">
+        {filteredCommands.map((cmd, i) => (
+          <Box key={cmd.name} flexDirection="row">
             <Box width={20}>
               <Text color={i === selectedIndex ? 'cyan' : 'gray'}>
                 {i === selectedIndex ? '> ' : '  '}
-                {`/${command}`}
+                {`/${cmd.name}`}
               </Text>
             </Box>
             <Box flexGrow={1}>
               <Text color={i === selectedIndex ? 'cyan' : 'gray'}>
-                {description}
+                {cmd.description}
               </Text>
             </Box>
           </Box>

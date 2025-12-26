@@ -1,56 +1,53 @@
-import process from 'node:process'
 import { Box } from 'ink'
 import TextInput from 'ink-text-input'
 import { useState } from 'react'
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router'
+import { executeCommand, getAllCommands } from './commands/commands'
 import Banner from './components/Banner'
 import { CommandMenu } from './components/CommandMenu'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import EventLog from './components/EventLog'
 import Info from './components/Info'
-import TaskStatus from './components/TaskStatus'
 import { loadConfig } from './config'
-import { AgentProvider } from './context/AgentContext'
-import { useAutoGLM } from './hooks'
-
-function handleCommand(command: string): boolean {
-  switch (command) {
-    case 'help':
-      console.log('Help: Available commands: /help, /exit')
-      return true
-    case 'exit':
-      process.exit(0)
-      return true
-    default:
-      console.log(`Unknown command: /${command}`)
-      return false
-  }
-}
+import { AgentProvider, useAgentContext } from './context/AgentContext'
+import TaskList from './pages/Tasks'
+import Welcome from './pages/Welcome'
 
 function AppContent() {
   const [query, setQuery] = useState('')
-  const { isRunning, currentTask, run } = useAutoGLM()
+  const context = useAgentContext()
+  const navigate = useNavigate()
 
   const handleSubmit = async (value: string) => {
     setQuery('')
     if (value.startsWith('/')) {
       const command = value.slice(1)
-      handleCommand(command)
+      executeCommand(command, context)
     }
     else {
-      await run(value)
+      context.run(value)
+      navigate('/tasks', { replace: true })
     }
   }
 
   const handleCommandSelect = (command: string) => {
     setQuery('')
-    handleCommand(command)
+    executeCommand(command, context)
   }
 
   return (
     <Box marginRight={2} marginLeft={2} flexDirection="column">
       <Banner />
-      <TaskStatus isRunning={isRunning} currentTask={currentTask} />
-      <EventLog enableKeyboard={!query.startsWith('/')} />
+
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/tasks" element={<TaskList />} />
+      </Routes>
+
       <Box borderStyle="round">
         <TextInput
           value={query}
@@ -59,15 +56,17 @@ function AppContent() {
           placeholder="  Please input your task"
         />
       </Box>
-      {query.startsWith('/') && (
-        <CommandMenu query={query} onCommandSelect={handleCommandSelect} />
-      )}
       <Info />
+      {query.startsWith('/') && (
+        <CommandMenu commands={getAllCommands()} query={query} onCommandSelect={handleCommandSelect} />
+      )}
     </Box>
   )
 }
 
-function App() {
+function AppWithRouter() {
+  const navigate = useNavigate()
+
   let config
   try {
     config = loadConfig()
@@ -83,10 +82,18 @@ function App() {
   }
 
   return (
+    <AgentProvider config={config} navigate={navigate}>
+      <AppContent />
+    </AgentProvider>
+  )
+}
+
+function App() {
+  return (
     <ErrorBoundary>
-      <AgentProvider config={config}>
-        <AppContent />
-      </AgentProvider>
+      <MemoryRouter>
+        <AppWithRouter />
+      </MemoryRouter>
     </ErrorBoundary>
   )
 }

@@ -14,7 +14,7 @@ interface FormattedEvent {
   time: string
 }
 
-function EmptyState() {
+export function EmptyState() {
   return (
     <Box flexDirection="column" alignItems="center" justifyContent="center" height={20}>
       <Box marginBottom={1}>
