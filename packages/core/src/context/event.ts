@@ -7,7 +7,7 @@ export enum EventType {
   ACTION = 'action',
   TASK_COMPLETE = 'task_complete',
   ERROR = 'error',
-  AGENT_ABORTED = 'agent_aborted',
+  ABORTED = 'aborted',
 }
 
 export type MittEvents = Record<EventType, EventData>

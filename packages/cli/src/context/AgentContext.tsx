@@ -59,7 +59,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
         setCurrentTask(String(message))
         setIsRunning(true)
       }
-      if (type === EventType.TASK_COMPLETE || type === EventType.ERROR || type === EventType.AGENT_ABORTED) {
+      if (type === EventType.TASK_COMPLETE || type === EventType.ERROR || type === EventType.ABORTED) {
         setIsRunning(false)
       }
 

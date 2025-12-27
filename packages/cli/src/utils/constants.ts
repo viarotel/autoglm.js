@@ -6,6 +6,7 @@ export const EVENT_TYPE_LABELS: Record<string, { label: string, color: string }>
   action: { label: 'ACTION', color: 'blue' },
   task_complete: { label: 'COMPLETE', color: 'green' },
   error: { label: 'ERROR', color: 'red' },
+  aborted: { label: 'ABORTED', color: 'magenta' },
 }
 
 export const DEFAULT_CONFIG = {
@@ -13,26 +14,5 @@ export const DEFAULT_CONFIG = {
   lang: 'cn' as const,
   baseUrl: 'https://open.bigmodel.cn/api/paas/v4/',
   model: 'autoglm-phone',
-}
-
-export const COMMAND_LIST = [
-  { name: 'help', description: 'Show help' },
-  { name: 'exit', description: 'Exit the program' },
-] as const
-
-export const SCROLL_VIEW_HEIGHT = 20
-
-export const EVENT_LIMIT = 1000
-
-export const LOCAL_STORAGE_KEYS = {
-  LAST_CONFIG: 'autoglm_last_config',
-  LOCALE: 'autoglm_locale',
-} as const
-
-export function isCommandQuery(query: string): boolean {
-  return query.startsWith('/')
-}
-
-export function extractCommand(query: string): string {
-  return query.startsWith('/') ? query.slice(1) : ''
+  apiKey: '74fab98ebabd483a9fb88e311c14f61c.OIQrXM8thm8vSxo1',
 }

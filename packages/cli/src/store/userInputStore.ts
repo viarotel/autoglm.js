@@ -1,7 +1,6 @@
 import type { AgentContextValue } from '@/config/types'
 import { create } from 'zustand'
 import { executeCommand } from '@/commands/commands'
-import { isCommandQuery } from '@/utils/constants'
 
 interface UserInputState {
   query: string
@@ -9,6 +8,10 @@ interface UserInputState {
   setQuery: (query: string) => void
   handleSubmit: (value: string, context: AgentContextValue, navigate: (path: string) => void) => void
   handleCommandSelect: (command: string, context: AgentContextValue) => void
+}
+
+function isCommandQuery(query: string): boolean {
+  return query.startsWith('/')
 }
 
 export const useUserInputStore = create<UserInputState>((set) => {

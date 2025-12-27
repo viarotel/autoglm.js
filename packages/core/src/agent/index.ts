@@ -14,7 +14,7 @@ export class PhoneAgent {
   private context: ChatCompletionMessageParam[] = []
   private stepCount: number = 0
   private abortController: AbortController | null = null
-  private _isAborted: boolean = false
+  private isAborted: boolean = false
 
   constructor(
     context: AgentContext,
@@ -33,22 +33,19 @@ export class PhoneAgent {
     return this.ctx.getConfig()
   }
 
-  get isAborted(): boolean {
-    return this._isAborted
-  }
-
   abort(reason: string = 'User aborted'): void {
     if (this.abortController) {
       this.abortController.abort(reason)
     }
-    this._isAborted = true
-    this.ctx.emit(EventType.AGENT_ABORTED, reason)
+    this.isAborted = true
+    this.ctx.emit(EventType.ABORTED, reason)
   }
 
-  private _checkAborted(): void {
-    if (this._isAborted && this.abortController?.signal.aborted) {
-      throw new Error(`Agent aborted: ${this.abortController.signal.reason || 'Unknown reason'}`)
+  private checkAborted() {
+    if (this.isAborted && this.abortController?.signal.aborted) {
+      return false
     }
+    return true
   }
 
   /**
@@ -56,7 +53,7 @@ export class PhoneAgent {
    */
   async run(task: string, signal?: AbortSignal): Promise<string> {
     this.abortController = new AbortController()
-    this._isAborted = false
+    this.isAborted = false
 
     if (signal) {
       signal.addEventListener('abort', () => {
@@ -77,7 +74,9 @@ export class PhoneAgent {
 
       // Continue until finished or max steps reached
       while (this.stepCount < this.agentConfig.maxSteps) {
-        this._checkAborted()
+        if (!this.checkAborted()) {
+          return 'Agent aborted'
+        }
         result = await this._executeStep(undefined, false)
 
         if (result.finished) {
