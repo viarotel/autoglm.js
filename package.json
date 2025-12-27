@@ -23,6 +23,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "dev": "turbo dev",
+    "play:cli": "cd packages/cli && pnpm start",
     "test": "turbo test --filter=!@autoglm/desktop",
     "dev:cli": "turbo dev --filter=autoglm.js --filter=@autoglm.js/cli",
     "build:cli": "turbo build --filter=@autoglm.js/cli",

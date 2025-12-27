@@ -34,6 +34,7 @@ export interface AgentState {
 
 export interface AgentActions {
   run: (query: string) => Promise<void>
+  abort: (reason?: string) => void
   stop: () => void
   clearEvents: () => void
   refreshDevices: () => Promise<void>

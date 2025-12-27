@@ -2,40 +2,14 @@ import type { ScrollViewRef } from 'ink-scroll-view'
 import { Box, Text, useInput, useStdout } from 'ink'
 import { ScrollView } from 'ink-scroll-view'
 import { useEffect, useRef } from 'react'
-import { useEventLog } from '@/hooks'
-import { SCROLL_VIEW_HEIGHT } from '@/utils/constants'
+import { useEventLog } from '@/hooks/useEventLog'
+import { useUserInputStore } from '@/store/userInputStore'
 
-interface FormattedEvent {
-  id: string
-  type: string
-  label: string
-  color: string
-  data: string
-  time: string
-}
-
-export function EmptyState() {
-  return (
-    <Box flexDirection="column" alignItems="center" justifyContent="center" height={20}>
-      <Box marginBottom={1}>
-        <Text color="cyan" bold>Welcome to AutoGLM.js</Text>
-      </Box>
-      <Box marginBottom={1}>
-        <Text color="white">Enter your task below to get started</Text>
-      </Box>
-      <Box marginBottom={1}>
-        <Text color="gray" dimColor>Example: "Open the browser"</Text>
-      </Box>
-      <Box>
-        <Text color="gray" dimColor>Press Enter to submit your task</Text>
-      </Box>
-    </Box>
-  )
-}
-
-function EventList({ events, enableKeyboard = true }: { events: FormattedEvent[], enableKeyboard?: boolean }) {
+export function EventList() {
   const scrollRef = useRef<ScrollViewRef>(null)
   const { stdout } = useStdout()
+  const { events } = useEventLog()
+  const { isCommand } = useUserInputStore()
 
   useEffect(() => {
     const handleResize = () => scrollRef.current?.remeasure()
@@ -46,8 +20,9 @@ function EventList({ events, enableKeyboard = true }: { events: FormattedEvent[]
   }, [stdout])
 
   useInput((_input, key) => {
-    if (!enableKeyboard || !scrollRef.current)
+    if (!scrollRef.current)
       return
+
     if (key.upArrow) {
       scrollRef.current.scrollBy(-1)
     }
@@ -62,7 +37,7 @@ function EventList({ events, enableKeyboard = true }: { events: FormattedEvent[]
       const height = scrollRef.current.getViewportHeight() || 1
       scrollRef.current.scrollBy(height)
     }
-  }, { isActive: enableKeyboard })
+  }, { isActive: !isCommand })
 
   useEffect(() => {
     if (events.length > 0) {
@@ -80,12 +55,12 @@ function EventList({ events, enableKeyboard = true }: { events: FormattedEvent[]
         <Text color="gray" dimColor>↑↓ Scroll | PgUp/PgDn Page</Text>
       </Box>
       <Box
-        height={SCROLL_VIEW_HEIGHT}
+        height={20}
         width="100%"
       >
         <ScrollView ref={scrollRef}>
-          {events.map(event => (
-            <Box key={event.id} justifyContent="space-between" width="100%" marginBottom={1} alignItems="flex-start">
+          {events.map((event, index) => (
+            <Box key={index} justifyContent="space-between" width="100%" marginBottom={1} alignItems="flex-start">
               <Box flexDirection="row">
                 <Box width={13}>
                   <Text color={event.color} bold>
@@ -107,17 +82,6 @@ function EventList({ events, enableKeyboard = true }: { events: FormattedEvent[]
           ))}
         </ScrollView>
       </Box>
-
     </Box>
   )
-}
-
-export default function EventLog({ enableKeyboard = true }: { enableKeyboard?: boolean }) {
-  const { hasEvents, events } = useEventLog()
-
-  if (!hasEvents) {
-    return <EmptyState />
-  }
-
-  return <EventList events={events} enableKeyboard={enableKeyboard} />
 }

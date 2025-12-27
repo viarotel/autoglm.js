@@ -1,4 +1,4 @@
-import type { AgentConfigType } from './context/types'
+import type { AgentConfigType, EventData } from './context/types'
 import { ADBManager } from './adb/manager'
 import { PhoneAgent } from './agent'
 import { checkModelApi, checkSystemRequirements } from './check'
@@ -19,6 +19,10 @@ export class AutoGLM {
     return this.adbManager
   }
 
+  public abort(reason?: string) {
+    this.phoneAgent.abort(reason)
+  }
+
   public checkSystemRequirements() {
     return checkSystemRequirements(this.ctx)
   }
@@ -32,18 +36,23 @@ export class AutoGLM {
     return this.phoneAgent.run(task)
   }
 
-  public on(type: EventType, handler: (data: any) => void) {
+  public on(type: '*', handler: (type: EventType, data: EventData) => void): this
+  public on(type: EventType, handler: (data: EventData) => void): this
+  public on(type: any, handler: any) {
     this.ctx.on(type, handler)
     return this
   }
 
-  public off(type: EventType, handler: (data: any) => void) {
+  public off(type: '*', handler: (type: EventType, data: EventData) => void): this
+  public off(type: EventType, handler: (data: EventData) => void): this
+  public off(type: any, handler: any) {
     this.ctx.off(type, handler)
     return this
   }
 }
 
 export * from './adb/types'
+export type { EventData }
 export {
   EventType,
 }

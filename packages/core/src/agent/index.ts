@@ -13,6 +13,8 @@ export class PhoneAgent {
   private actionHandler: ActionHandler
   private context: ChatCompletionMessageParam[] = []
   private stepCount: number = 0
+  private abortController: AbortController | null = null
+  private _isAborted: boolean = false
 
   constructor(
     context: AgentContext,
@@ -31,30 +33,63 @@ export class PhoneAgent {
     return this.ctx.getConfig()
   }
 
+  get isAborted(): boolean {
+    return this._isAborted
+  }
+
+  abort(reason: string = 'User aborted'): void {
+    if (this.abortController) {
+      this.abortController.abort(reason)
+    }
+    this._isAborted = true
+    this.ctx.emit(EventType.AGENT_ABORTED, reason)
+  }
+
+  private _checkAborted(): void {
+    if (this._isAborted && this.abortController?.signal.aborted) {
+      throw new Error(`Agent aborted: ${this.abortController.signal.reason || 'Unknown reason'}`)
+    }
+  }
+
   /**
    * Run the agent to complete a task.
    */
-  async run(task: string): Promise<string> {
-    // Reset state
-    this.reset()
+  async run(task: string, signal?: AbortSignal): Promise<string> {
+    this.abortController = new AbortController()
+    this._isAborted = false
 
-    // First step with user prompt
-    let result = await this._executeStep(task, true)
-
-    if (result.finished) {
-      return result.message || 'Task completed'
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        this.abort(signal.reason as string || 'External signal aborted')
+      })
     }
 
-    // Continue until finished or max steps reached
-    while (this.stepCount < this.agentConfig.maxSteps) {
-      result = await this._executeStep(undefined, false)
+    try {
+      // Reset state
+      this.reset()
+
+      // First step with user prompt
+      let result = await this._executeStep(task, true)
 
       if (result.finished) {
         return result.message || 'Task completed'
       }
-    }
 
-    throw new Error('Max steps reached')
+      // Continue until finished or max steps reached
+      while (this.stepCount < this.agentConfig.maxSteps) {
+        this._checkAborted()
+        result = await this._executeStep(undefined, false)
+
+        if (result.finished) {
+          return result.message || 'Task completed'
+        }
+      }
+
+      throw new Error('Max steps reached')
+    }
+    finally {
+      this.abortController = null
+    }
   }
 
   /**
@@ -128,7 +163,9 @@ export class PhoneAgent {
 
     // Get model response
     try {
-      const response = await this.modelClient.request(this.context)
+      const response = await this.modelClient.request(this.context, {
+        signal: this.abortController?.signal,
+      })
 
       // Parse action from response
       let action

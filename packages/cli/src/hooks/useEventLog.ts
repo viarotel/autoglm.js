@@ -3,20 +3,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { useAgentContext } from '@/context/AgentContext'
 import { EVENT_TYPE_LABELS } from '@/utils/constants'
 
-export interface FormattedEvent {
-  id: string
-  type: string
-  label: string
-  color: string
-  data: string
-  time: string
-}
-
 export function useEventLog() {
   const { events, isRunning, clearEvents } = useAgentContext()
 
   const formattedEvents = useMemo(() => {
-    return events.map((event, index) => {
+    return events.map((event) => {
       const typeInfo = EVENT_TYPE_LABELS[event.type] ?? {
         label: event.type.toUpperCase(),
         color: 'white',
@@ -24,7 +15,6 @@ export function useEventLog() {
       const data = formatEventData(event)
 
       return {
-        id: `${index}-${event.time}`,
         type: event.type,
         label: typeInfo.label,
         color: typeInfo.color,

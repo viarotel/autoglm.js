@@ -16,9 +16,11 @@ export function CommandMenu({ query, commands, onCommandSelect }: CommandMenuPro
 
   const filteredCommands = useMemo(() => {
     const searchTerm = query.slice(1).toLowerCase()
-    return commands.filter(cmd =>
-      cmd.name.toLowerCase().includes(searchTerm),
-    )
+    return commands
+      .filter(cmd =>
+        cmd.name.toLowerCase().includes(searchTerm),
+      )
+      .sort((a, b) => a.name.localeCompare(b.name))
   }, [query, commands])
 
   useInput((_input, key) => {
@@ -48,7 +50,10 @@ export function CommandMenu({ query, commands, onCommandSelect }: CommandMenuPro
         {filteredCommands.map((cmd, i) => (
           <Box key={cmd.name} flexDirection="row">
             <Box width={20}>
-              <Text color={i === selectedIndex ? 'cyan' : 'gray'}>
+              <Text
+                color={i === selectedIndex ? 'cyan' : 'gray'}
+
+              >
                 {i === selectedIndex ? '> ' : '  '}
                 {`/${cmd.name}`}
               </Text>

@@ -1,11 +1,10 @@
-import type { DeviceInfo } from 'autoglm.js'
+import type { DeviceInfo, EventData } from 'autoglm.js'
 import type { ReactNode } from 'react'
 import type { AgentContextValue, AgentEvent } from '@/config/types'
 import { AutoGLM, EventType } from 'autoglm.js'
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
-
-type NavigateFunction = (path: string, options?: { replace?: boolean }) => void
+import { useNavigate } from 'react-router'
 
 const AgentContext = createContext<AgentContextValue | null>(null)
 
@@ -27,10 +26,10 @@ interface AgentProviderProps {
     model: string
     deviceId?: string
   }
-  navigate?: NavigateFunction
 }
 
-export function AgentProvider({ children, config, navigate }: AgentProviderProps) {
+export function AgentProvider({ children, config }: AgentProviderProps) {
+  const navigate = useNavigate()
   const [isRunning, setIsRunning] = useState(false)
   const [currentTask, setCurrentTask] = useState<string | null>(null)
   const [events, setEvents] = useState<AgentEvent[]>([])
@@ -54,46 +53,30 @@ export function AgentProvider({ children, config, navigate }: AgentProviderProps
 
     agentRef.current = agent
 
-    const handleStart = (data: unknown) => {
-      const message = (data as { message?: string })?.message ?? data
-      setCurrentTask(String(message))
-      setIsRunning(true)
+    const handleAllEvents = (type: EventType, data: EventData) => {
+      if (type === EventType.START) {
+        const message = data.message
+        setCurrentTask(String(message))
+        setIsRunning(true)
+      }
+      if (type === EventType.TASK_COMPLETE || type === EventType.ERROR || type === EventType.AGENT_ABORTED) {
+        setIsRunning(false)
+      }
+
+      setEvents(prev => [
+        ...prev,
+        {
+          type,
+          data: data.message ?? data,
+          time: data.time,
+        },
+      ])
     }
 
-    const handleThinking = (data: unknown) => {
-      const time = new Date().toLocaleTimeString()
-      setEvents(prev => [...prev, { type: 'thinking', data, time }])
-    }
-
-    const handleAction = (data: unknown) => {
-      const time = new Date().toLocaleTimeString()
-      setEvents(prev => [...prev, { type: 'action', data, time }])
-    }
-
-    const handleTaskComplete = (data: unknown) => {
-      const time = new Date().toLocaleTimeString()
-      setIsRunning(false)
-      setEvents(prev => [...prev, { type: 'task_complete', data, time }])
-    }
-
-    const handleError = (data: unknown) => {
-      const time = new Date().toLocaleTimeString()
-      setIsRunning(false)
-      setEvents(prev => [...prev, { type: 'error', data, time }])
-    }
-
-    agent.on(EventType.START, handleStart)
-    agent.on(EventType.THINKING, handleThinking)
-    agent.on(EventType.ACTION, handleAction)
-    agent.on(EventType.TASK_COMPLETE, handleTaskComplete)
-    agent.on(EventType.ERROR, handleError)
+    agent.on('*', handleAllEvents)
 
     cleanupRef.current.push(() => {
-      agent.off(EventType.START, handleStart)
-      agent.off(EventType.THINKING, handleThinking)
-      agent.off(EventType.ACTION, handleAction)
-      agent.off(EventType.TASK_COMPLETE, handleTaskComplete)
-      agent.off(EventType.ERROR, handleError)
+      agent.off('*', handleAllEvents)
     })
 
     const initializeAgent = async () => {
@@ -137,6 +120,13 @@ export function AgentProvider({ children, config, navigate }: AgentProviderProps
       throw new Error('Agent not initialized')
     }
     await agent.run(query)
+  }, [])
+
+  const abort = useCallback((reason?: string) => {
+    const agent = agentRef.current
+    if (agent) {
+      agent.abort(reason)
+    }
   }, [])
 
   const stop = useCallback(() => {
@@ -199,13 +189,14 @@ export function AgentProvider({ children, config, navigate }: AgentProviderProps
     devices,
     systemCheck,
     apiCheck,
+    abort,
     run,
     stop,
     clearEvents,
     refreshDevices,
     checkSystem,
     checkApi,
-    navigate: navigate || (() => {}),
+    navigate,
   }
 
   return (

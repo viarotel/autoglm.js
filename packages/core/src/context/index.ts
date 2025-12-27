@@ -25,20 +25,18 @@ export class AgentContext {
     this.configStore.setConfig(config)
   }
 
-  public emit(event: EventType, data: any) {
+  public emit(event: EventType, data: unknown) {
     this.emitter.emit(event, {
       message: data,
       time: dayjs().format('hh:mm:ss A'),
     })
   }
 
-  public on(event: EventType, handler: (data: any) => void) {
-    this.emitter.on(event, handler)
-    return this
+  public on(event: any, handler: any) {
+    return this.emitter.on(event, handler)
   }
 
-  public off(event: EventType, handler: (data: any) => void) {
-    this.emitter.off(event, handler)
-    return this
+  public off(event: any, handler: any) {
+    return this.emitter.off(event, handler)
   }
 }

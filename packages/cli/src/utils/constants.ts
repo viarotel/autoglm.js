@@ -28,3 +28,11 @@ export const LOCAL_STORAGE_KEYS = {
   LAST_CONFIG: 'autoglm_last_config',
   LOCALE: 'autoglm_locale',
 } as const
+
+export function isCommandQuery(query: string): boolean {
+  return query.startsWith('/')
+}
+
+export function extractCommand(query: string): string {
+  return query.startsWith('/') ? query.slice(1) : ''
+}

@@ -39,4 +39,11 @@ export const commands: CommandHandler[] = [
       context.navigate('/tasks')
     },
   },
+  {
+    name: 'abort',
+    description: 'Abort the current task',
+    execute: (context) => {
+      context.abort('User aborted the task')
+    },
+  },
 ]
