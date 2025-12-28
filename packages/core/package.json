@@ -41,16 +41,8 @@
     "typecheck": "tsc",
     "test": "vitest"
   },
-  "optionalDependencies": {
-    "@autoglm.js/platform-tools-darwin": "workspace:*",
-    "@autoglm.js/platform-tools-linux": "workspace:*",
-    "@autoglm.js/platform-tools-windows": "workspace:*"
-  },
-  "devDependencies": {
-    "@autoglm.js/shared": "workspace:*",
+  "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "@types/fs-extra": "^11.0.4",
-    "@types/minimist": "^1.2.5",
     "acorn": "^8.15.0",
     "acorn-loose": "^8.5.2",
     "consola": "^3.4.2",
@@ -60,7 +52,17 @@
     "mitt": "^3.0.1",
     "openai": "^6.10.0",
     "std-env": "^3.10.0",
-    "tinyexec": "^1.0.2",
+    "tinyexec": "^1.0.2"
+  },
+  "optionalDependencies": {
+    "@autoglm.js/platform-tools-darwin": "workspace:*",
+    "@autoglm.js/platform-tools-linux": "workspace:*",
+    "@autoglm.js/platform-tools-windows": "workspace:*"
+  },
+  "devDependencies": {
+    "@autoglm.js/shared": "workspace:*",
+    "@types/fs-extra": "^11.0.4",
+    "@types/minimist": "^1.2.5",
     "vitest": "^4.0.16"
   }
 }

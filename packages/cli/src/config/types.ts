@@ -1,18 +1,7 @@
-import type { DeviceInfo, EventType } from 'autoglm.js'
+import type { AgentConfigType, DeviceInfo, EventType } from 'autoglm.js'
+import type { RoutePath } from '@/router/routes'
 
-export interface AgentConfig {
-  maxSteps: number
-  lang: 'cn' | 'en'
-  baseUrl: string
-  apiKey: string
-  model: string
-  deviceId?: string
-  systemPrompt?: string
-  maxTokens?: number
-  temperature?: number
-  topP?: number
-  frequencyPenalty?: number
-}
+export type AgentConfig = AgentConfigType
 
 export interface AgentEvent {
   type: string
@@ -30,6 +19,7 @@ export interface AgentState {
   devices: DeviceInfo[]
   systemCheck: boolean | null
   apiCheck: boolean | null
+  config: AgentConfig
 }
 
 export interface AgentActions {
@@ -40,7 +30,7 @@ export interface AgentActions {
   refreshDevices: () => Promise<void>
   checkSystem: () => Promise<void>
   checkApi: () => Promise<void>
-  navigate: (path: string, options?: { replace?: boolean }) => void
+  navigate: (path: RoutePath, options?: { replace?: boolean }) => void
 }
 
 export type AgentContextValue = AgentState & AgentActions

@@ -1,8 +1,8 @@
-import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import fs from 'fs-extra'
 import { isLinux, isMacOS, isWindows } from 'std-env'
+import { AUTOGLM_FILEPATH } from '@/constants'
 
 export class ADBAutoInstaller {
   private installPath: string
@@ -10,25 +10,10 @@ export class ADBAutoInstaller {
   private platformToolsPath: string
 
   constructor(customPlatformToolsPath?: string) {
-    this.installPath = this.getDefaultInstallPath()
+    this.installPath = AUTOGLM_FILEPATH
 
     this.platformToolsPath = customPlatformToolsPath ?? path.join(this.installPath, 'platform-tools')
     this.adbPath = path.join(this.platformToolsPath, 'adb')
-  }
-
-  getCurrentShellPath() {
-    const shell = process.env.SHELL?.includes('zsh') || isMacOS ? 'zsh' : 'bash'
-    const configFile = { bash: '.bashrc', zsh: '.zshrc' }[shell] || '.profile'
-    return path.join(os.homedir(), configFile)
-  }
-
-  getDefaultInstallPath() {
-    if (isWindows) {
-      return path.join(process.env.ProgramFiles || os.homedir(), 'adb')
-    }
-    else {
-      return path.join(os.homedir(), '.adb')
-    }
   }
 
   async install() {

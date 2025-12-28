@@ -1,4 +1,5 @@
 import type { AgentContextValue } from '@/config/types'
+import type { RoutePath } from '@/router/routes'
 import { create } from 'zustand'
 import { executeCommand } from '@/commands/commands'
 
@@ -6,7 +7,7 @@ interface UserInputState {
   query: string
   isCommand: boolean
   setQuery: (query: string) => void
-  handleSubmit: (value: string, context: AgentContextValue, navigate: (path: string) => void) => void
+  handleSubmit: (value: string, context: AgentContextValue, navigate: (path: RoutePath) => void) => void
   handleCommandSelect: (command: string, context: AgentContextValue) => void
 }
 

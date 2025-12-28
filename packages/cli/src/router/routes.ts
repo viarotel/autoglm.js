@@ -1,5 +1,14 @@
-import type { RouteConfig } from '@/types/router'
+import type { ComponentType, LazyExoticComponent } from 'react'
+
 import { lazy } from 'react'
+
+export type RoutePath = '/' | '/tasks' | '/config'
+
+export interface RouteConfig {
+  path: RoutePath
+  component: LazyExoticComponent<ComponentType>
+  label?: string
+}
 
 export const routes: RouteConfig[] = [
   {
@@ -12,9 +21,15 @@ export const routes: RouteConfig[] = [
     component: lazy(() => import('@/pages/Tasks')),
     label: 'Tasks',
   },
+  {
+    path: '/config',
+    component: lazy(() => import('@/pages/Config')),
+    label: 'Config',
+  },
 ]
 
 export const routePaths = {
-  HOME: '/' as const,
-  TASKS: '/tasks' as const,
-}
+  HOME: '/',
+  TASKS: '/tasks',
+  CONFIG: '/config',
+} as const

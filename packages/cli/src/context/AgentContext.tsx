@@ -1,4 +1,4 @@
-import type { DeviceInfo, EventData } from 'autoglm.js'
+import type { AgentConfigType, DeviceInfo, EventData } from 'autoglm.js'
 import type { ReactNode } from 'react'
 import type { AgentContextValue, AgentEvent } from '@/config/types'
 import { AutoGLM, EventType } from 'autoglm.js'
@@ -18,14 +18,7 @@ export function useAgentContext(): AgentContextValue {
 
 interface AgentProviderProps {
   children: ReactNode
-  config: {
-    maxSteps: number
-    lang: 'cn' | 'en'
-    baseUrl: string
-    apiKey: string
-    model: string
-    deviceId?: string
-  }
+  config: AgentConfigType
 }
 
 export function AgentProvider({ children, config }: AgentProviderProps) {
@@ -42,14 +35,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
   const cleanupRef = useRef<(() => void)[]>([])
 
   useEffect(() => {
-    const agent = new AutoGLM({
-      maxSteps: config.maxSteps,
-      lang: config.lang,
-      baseUrl: config.baseUrl,
-      apiKey: config.apiKey,
-      model: config.model,
-      deviceId: config.deviceId,
-    })
+    const agent = new AutoGLM(config)
 
     agentRef.current = agent
 
@@ -189,6 +175,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     devices,
     systemCheck,
     apiCheck,
+    config,
     abort,
     run,
     stop,

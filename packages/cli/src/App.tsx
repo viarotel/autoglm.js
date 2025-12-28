@@ -1,12 +1,13 @@
 import { MemoryRouter } from 'react-router'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { getAppConfig } from '@/config/appConfig'
+
+import { loadCliConfig } from '@/config'
 import { AgentProvider } from '@/context/AgentContext'
 import AppRouter from '@/router'
 
-function App() {
-  const config = getAppConfig()
+const config = loadCliConfig()
 
+function App() {
   return (
     <ErrorBoundary>
       <MemoryRouter>

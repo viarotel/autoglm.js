@@ -1,73 +1,34 @@
-import type { AgentConfig } from './types'
+import type { AgentConfigType } from 'autoglm.js'
 import fs from 'node:fs'
-import path from 'node:path'
-import process from 'node:process'
-import { loadConfigFile } from '../cli/config/loader'
-import { loadEnvConfig } from './env'
+import { join } from 'node:path'
+import { AUTOGLM_FILEPATH } from 'autoglm.js'
+import { loadConfigSync } from 'unconfig'
 
-export interface ConfigSource {
-  type: 'env' | 'file' | 'default'
-  config: Partial<AgentConfig>
+const DEFAULT_CONFIG: AgentConfigType = {
+  maxSteps: 100,
+  lang: 'cn',
+  baseUrl: 'https://open.bigmodel.cn/api/paas/v4/',
+  apiKey: '',
+  model: 'autoglm-phone',
+  maxTokens: 2048,
+  temperature: 0.5,
+  topP: 0.5,
+  frequencyPenalty: 0.5,
 }
 
-export function findConfigFile(): string | null {
-  const configNames = ['autoglm.config.json', '.autoglmrc', 'autoglm.json']
-  const cwd = process.cwd()
-
-  for (const name of configNames) {
-    const filePath = path.resolve(cwd, name)
-    if (fs.existsSync(filePath)) {
-      return filePath
-    }
+export function loadCliConfig(customConfigPath?: string) {
+  const configPath = customConfigPath ?? join(AUTOGLM_FILEPATH, 'config.json')
+  if (!customConfigPath && !fs.existsSync(configPath)) {
+    return DEFAULT_CONFIG
   }
-
-  return null
+  const { config } = loadConfigSync<AgentConfigType>({
+    sources: [{
+      files: configPath,
+    }],
+    defaults: DEFAULT_CONFIG,
+    merge: true,
+  })
+  return config
 }
 
-export function mergeConfig(
-  fileConfig: Partial<AgentConfig> | undefined,
-  envConfig: ReturnType<typeof loadEnvConfig>,
-): AgentConfig {
-  return {
-    maxSteps: fileConfig?.maxSteps ?? envConfig.maxSteps ?? 100,
-    lang: fileConfig?.lang ?? envConfig.lang ?? 'cn',
-    baseUrl: fileConfig?.baseUrl ?? envConfig.baseUrl,
-    apiKey: fileConfig?.apiKey ?? envConfig.apiKey,
-    model: fileConfig?.model ?? envConfig.model,
-    deviceId: fileConfig?.deviceId ?? envConfig.deviceId,
-    systemPrompt: fileConfig?.systemPrompt,
-    maxTokens: fileConfig?.maxTokens,
-    temperature: fileConfig?.temperature,
-    topP: fileConfig?.topP,
-    frequencyPenalty: fileConfig?.frequencyPenalty,
-  }
-}
-
-export function loadConfig(configPath?: string): AgentConfig {
-  const envConfig = loadEnvConfig()
-
-  if (configPath) {
-    const fileConfig = loadConfigFile(configPath)
-    return mergeConfig(fileConfig, envConfig)
-  }
-
-  const foundPath = findConfigFile()
-  if (foundPath) {
-    const fileConfig = loadConfigFile(foundPath)
-    return mergeConfig(fileConfig, envConfig)
-  }
-
-  return mergeConfig(undefined, envConfig)
-}
-
-export function createAgentConfig(config: Partial<AgentConfig>): AgentConfig {
-  const defaultConfig: AgentConfig = {
-    maxSteps: 100,
-    lang: 'cn',
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4/',
-    apiKey: '',
-    model: 'autoglm-phone',
-  }
-
-  return { ...defaultConfig, ...config }
-}
+export type { AgentConfigType }

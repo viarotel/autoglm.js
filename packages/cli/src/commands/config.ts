@@ -40,6 +40,13 @@ export const commands: CommandHandler[] = [
     },
   },
   {
+    name: 'config',
+    description: 'View current configuration',
+    execute: (context) => {
+      context.navigate('/config')
+    },
+  },
+  {
     name: 'abort',
     description: 'Abort the current task',
     execute: (context) => {
