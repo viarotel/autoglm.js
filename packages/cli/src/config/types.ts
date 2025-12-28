@@ -19,7 +19,6 @@ export interface AgentState {
   devices: DeviceInfo[]
   systemCheck: boolean | null
   apiCheck: boolean | null
-  config: AgentConfig
 }
 
 export interface AgentActions {
@@ -30,6 +29,8 @@ export interface AgentActions {
   refreshDevices: () => Promise<void>
   checkSystem: () => Promise<void>
   checkApi: () => Promise<void>
+  getConfig: () => AgentConfig
+  updateConfig: (config: Partial<AgentConfig>) => void
   navigate: (path: RoutePath, options?: { replace?: boolean }) => void
 }
 

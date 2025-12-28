@@ -167,23 +167,35 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     }
   }, [])
 
+  const getConfig = useCallback(() => {
+    return agentRef.current?.config || config
+  }, [])
+
+  const updateConfig = useCallback((newConfig: Partial<AgentConfigType>) => {
+    const agent = agentRef.current
+    if (agent) {
+      agent.updateConfig(newConfig)
+    }
+  }, [])
+
   const value: AgentContextValue = {
-    isRunning,
-    currentTask,
     events,
     version,
     devices,
-    systemCheck,
     apiCheck,
-    config,
+    isRunning,
+    currentTask,
+    systemCheck,
     abort,
     run,
     stop,
-    clearEvents,
-    refreshDevices,
-    checkSystem,
     checkApi,
     navigate,
+    getConfig,
+    clearEvents,
+    checkSystem,
+    updateConfig,
+    refreshDevices,
   }
 
   return (

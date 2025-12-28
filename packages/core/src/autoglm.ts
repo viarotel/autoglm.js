@@ -49,4 +49,12 @@ export class AutoGLM {
     this.ctx.off(type, handler)
     return this
   }
+
+  public get config() {
+    return this.ctx.getConfig()
+  }
+
+  public updateConfig(config: Partial<AgentConfigType>) {
+    this.ctx.updateConfig(config)
+  }
 }

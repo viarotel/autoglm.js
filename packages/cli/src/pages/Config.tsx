@@ -24,62 +24,182 @@ function ConfigSection({ title, children }: ConfigSectionProps) {
 interface ConfigItemProps {
   label: string
   value: string | number | undefined
+  description?: string
   color?: string
   important?: boolean
 }
 
-function ConfigItem({ label, value, color = 'white', important = false }: ConfigItemProps) {
+function ConfigItem({ label, value, description, color = 'white', important = false }: ConfigItemProps) {
   return (
-    <Box marginBottom={1}>
-      <Box width={20}>
+    <Box flexDirection="row" marginBottom={1}>
+      {/* Label column */}
+      <Box width={22}>
         <Text color={important ? 'yellow' : 'cyan'} bold={important}>
           {label}
+          :
         </Text>
       </Box>
-      <Box flexGrow={1}>
+
+      {/* Value column */}
+      <Box width={44} marginRight={2}>
         <Text color={color} bold={important}>
           {value ?? 'N/A'}
+        </Text>
+      </Box>
+
+      {/* Description column */}
+      <Box flexGrow={1}>
+        <Text color="gray" dimColor>
+          {description}
         </Text>
       </Box>
     </Box>
   )
 }
 
+interface ConfigField {
+  key: string
+  label: string
+  description: string
+  important?: boolean
+  getValue: (config: any) => string | number | undefined
+}
+
+const configFields: Record<string, ConfigField[]> = {
+  api: [
+    {
+      key: 'baseUrl',
+      label: 'Base URL',
+      description: 'Base URL for API service',
+      important: true,
+      getValue: config => config.baseUrl,
+    },
+    {
+      key: 'apiKey',
+      label: 'API Key',
+      description: 'API key for authentication',
+      important: true,
+      getValue: config => config.apiKey ? `${config.apiKey.slice(0, 10)}*****${config.apiKey.slice(-10)}` : 'Not Set',
+    },
+    {
+      key: 'model',
+      label: 'Model',
+      description: 'AI model name to use',
+      important: true,
+      getValue: config => config.model,
+    },
+  ],
+  generation: [
+    {
+      key: 'maxTokens',
+      label: 'Max Tokens',
+      description: 'Maximum length of generated text',
+      getValue: config => config.maxTokens,
+    },
+    {
+      key: 'temperature',
+      label: 'Temperature',
+      description: 'Controls randomness of generated text (0-1)',
+      getValue: config => config.temperature,
+    },
+    {
+      key: 'topP',
+      label: 'Top P',
+      description: 'Nucleus sampling parameter for vocabulary selection',
+      getValue: config => config.topP,
+    },
+    {
+      key: 'frequencyPenalty',
+      label: 'Frequency Penalty',
+      description: 'Reduces repetition of words',
+      getValue: config => config.frequencyPenalty,
+    },
+  ],
+  system: [
+    {
+      key: 'deviceId',
+      label: 'Device ID',
+      description: 'Unique device identifier',
+      getValue: config => config.deviceId,
+    },
+    {
+      key: 'maxSteps',
+      label: 'Max Steps',
+      description: 'Maximum execution steps',
+      getValue: config => config.maxSteps,
+    },
+    {
+      key: 'lang',
+      label: 'Language',
+      description: 'Interface display language',
+      getValue: config => config.lang,
+    },
+  ],
+}
+
 export default function Config() {
-  const { config } = useAgentContext()
+  const { getConfig } = useAgentContext()
+
+  const sectionTitles: Record<string, string> = {
+    api: 'API Settings',
+    generation: 'Generation Parameters',
+    system: 'System Settings',
+  }
+  const config = getConfig()
 
   return (
     <Box flexDirection="column" paddingX={2} paddingY={1}>
-      <ConfigSection title="API Settings">
-        <ConfigItem label="Base URL" value={config.baseUrl} important={true} />
-        <ConfigItem
-          label="API Key"
-          value={config.apiKey ? `${config.apiKey.slice(0, 8)}*****${config.apiKey.slice(-8)}` : 'Not Set'}
-          important={true}
-        />
-        <ConfigItem label="Model" value={config.model} important={true} />
+      {/* API Settings */}
+      <ConfigSection title={sectionTitles.api}>
+        {configFields.api.map(field => (
+          <ConfigItem
+            key={field.key}
+            label={field.label}
+            value={field.getValue(config)}
+            description={field.description}
+            important={field.important}
+          />
+        ))}
       </ConfigSection>
 
-      <ConfigSection title="Generation Parameters">
-        <ConfigItem label="Max Tokens" value={config.maxTokens} />
-        <ConfigItem label="Temperature" value={config.temperature} />
-        <ConfigItem label="Top P" value={config.topP} />
-        <ConfigItem label="Frequency Penalty" value={config.frequencyPenalty} />
+      {/* Generation Parameters */}
+      <ConfigSection title={sectionTitles.generation}>
+        {configFields.generation.map(field => (
+          <ConfigItem
+            key={field.key}
+            label={field.label}
+            value={field.getValue(config)}
+            description={field.description}
+            important={field.important}
+          />
+        ))}
       </ConfigSection>
 
-      <ConfigSection title="System Settings">
-        <ConfigItem label="Device ID" value={config.deviceId} />
-        <ConfigItem label="Max Steps" value={config.maxSteps} />
-        <ConfigItem label="Language" value={config.lang} />
+      {/* System Settings */}
+      <ConfigSection title={sectionTitles.system}>
+        {configFields.system.map(field => (
+          <ConfigItem
+            key={field.key}
+            label={field.label}
+            value={field.getValue(config)}
+            description={field.description}
+            important={field.important}
+          />
+        ))}
       </ConfigSection>
 
       {config.systemPrompt && (
         <ConfigSection title="System Prompt">
-          <Box>
+          <Box marginBottom={1}>
             <Text color="white">
               {config.systemPrompt.length > 80
                 ? `${config.systemPrompt.slice(0, 80)}...`
                 : config.systemPrompt}
+            </Text>
+          </Box>
+          <Box>
+            <Text color="gray" dimColor>
+              System prompt to guide AI behavior and response style
             </Text>
           </Box>
         </ConfigSection>
