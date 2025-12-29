@@ -4,10 +4,10 @@ import TaskStatus from '@/components/TaskStatus'
 import { useAgentContext } from '@/context/AgentContext'
 
 export default function TaskList() {
-  const { isRunning, currentTask } = useAgentContext()
+  const { isRunning, currentTask, currentDeviceId } = useAgentContext()
   return (
     <Box flexDirection="column">
-      <TaskStatus isRunning={isRunning} currentTask={currentTask} />
+      <TaskStatus isRunning={isRunning} currentTask={currentTask} currentDeviceId={currentDeviceId} />
       <EventList />
     </Box>
   )

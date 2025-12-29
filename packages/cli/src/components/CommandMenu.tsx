@@ -3,6 +3,9 @@ import type { CommandHandler } from '@/commands/commands'
 import { Box, Text, useInput } from 'ink'
 import { ScrollList } from 'ink-scroll-list'
 import { useMemo, useRef, useState } from 'react'
+import { getAllCommands } from '@/commands/commands'
+import { useAgentContext } from '@/context/AgentContext'
+import { useUserInputStore } from '@/store/userInputStore'
 
 interface CommandMenuProps {
   query: string
@@ -67,5 +70,27 @@ export function CommandMenu({ query, commands, onCommandSelect }: CommandMenuPro
         ))}
       </ScrollList>
     </Box>
+  )
+}
+
+export function CommandMenuContainer() {
+  const context = useAgentContext()
+
+  const {
+    query,
+    handleCommandSelect,
+    isCommand,
+  } = useUserInputStore()
+
+  if (!isCommand) {
+    return null
+  }
+
+  return (
+    <CommandMenu
+      commands={getAllCommands()}
+      query={query}
+      onCommandSelect={command => handleCommandSelect(command, context)}
+    />
   )
 }

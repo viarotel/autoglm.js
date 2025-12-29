@@ -41,7 +41,7 @@ export function useAutoGLM() {
 }
 
 export function useDeviceInfo() {
-  const { devices, version, refreshDevices } = useAgentContext()
+  const { devices, version, refreshDevices, currentDeviceId } = useAgentContext()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const refresh = useCallback(async () => {
@@ -54,13 +54,15 @@ export function useDeviceInfo() {
     }
   }, [refreshDevices])
 
+  const currentDevice = devices.find(device => device.deviceId === currentDeviceId) ?? null
+
   return {
     devices,
     version,
     isRefreshing,
     refresh,
     hasDevices: devices.length > 0,
-    primaryDevice: devices[0] ?? null,
+    currentDevice,
   }
 }
 

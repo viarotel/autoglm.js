@@ -21,21 +21,26 @@ export const useUserInputStore = create<UserInputState>((set) => {
     isCommand: false,
 
     setQuery: (query) => {
-      set({ query, isCommand: isCommandQuery(query) })
+      set({
+        query,
+        isCommand: isCommandQuery(query),
+      })
     },
 
     handleSubmit: (value, context, navigate) => {
+      set({ query: '' })
       if (isCommandQuery(value)) {
         return
       }
-
-      set({ query: '' })
+      if (value.trim() === '') {
+        return
+      }
       context.run(value)
       navigate('/tasks')
     },
 
     handleCommandSelect: (command, context) => {
-      set({ query: '' })
+      set({ query: '', isCommand: false })
       executeCommand(command, context)
     },
   }

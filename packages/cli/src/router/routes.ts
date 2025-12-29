@@ -2,7 +2,7 @@ import type { ComponentType, LazyExoticComponent } from 'react'
 
 import { lazy } from 'react'
 
-export type RoutePath = '/' | '/tasks' | '/config'
+export type RoutePath = '/' | '/tasks' | '/config' | '/devices'
 
 export interface RouteConfig {
   path: RoutePath
@@ -26,10 +26,16 @@ export const routes: RouteConfig[] = [
     component: lazy(() => import('@/pages/Config')),
     label: 'Config',
   },
+  {
+    path: '/devices',
+    component: lazy(() => import('@/pages/Devices')),
+    label: 'Devices',
+  },
 ]
 
 export const routePaths = {
   HOME: '/',
   TASKS: '/tasks',
   CONFIG: '/config',
+  DEVICES: '/devices',
 } as const

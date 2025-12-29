@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Box } from 'ink'
 import Banner from '@/components/Banner'
+import { CommandMenuContainer } from '@/components/CommandMenu'
 import Info from '@/components/Info'
 import { UserInput } from '@/components/UserInput'
 
@@ -12,11 +13,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <Box marginRight={2} marginLeft={2} flexDirection="column">
       <Banner />
-
       {children}
-
       <UserInput />
       <Info />
+      <CommandMenuContainer />
     </Box>
   )
 }

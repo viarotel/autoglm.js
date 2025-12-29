@@ -1,8 +1,6 @@
 import { Box } from 'ink'
 import TextInput from 'ink-text-input'
 import { useNavigate } from 'react-router'
-import { getAllCommands } from '@/commands/commands'
-import { CommandMenu } from '@/components/CommandMenu'
 import { useAgentContext } from '@/context/AgentContext'
 import { useUserInputStore } from '@/store/userInputStore'
 
@@ -14,8 +12,6 @@ export function UserInput() {
     query,
     setQuery,
     handleSubmit,
-    handleCommandSelect,
-    isCommand,
   } = useUserInputStore()
 
   return (
@@ -28,13 +24,6 @@ export function UserInput() {
           placeholder="  Please Input Your Task"
         />
       </Box>
-      {isCommand && (
-        <CommandMenu
-          commands={getAllCommands()}
-          query={query}
-          onCommandSelect={command => handleCommandSelect(command, context)}
-        />
-      )}
     </>
   )
 }

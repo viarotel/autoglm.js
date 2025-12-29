@@ -23,10 +23,13 @@ export class PhoneAgent {
   ) {
     this.ctx = context
     this.modelClient = new ModelClient(context)
-    this.actionHandler = new ActionHandler(this.agentConfig.deviceId, {
-      confirmationCallback,
-      takeoverCallback,
-    })
+    this.actionHandler = new ActionHandler(
+      context,
+      {
+        confirmationCallback,
+        takeoverCallback,
+      },
+    )
   }
 
   private get agentConfig() {

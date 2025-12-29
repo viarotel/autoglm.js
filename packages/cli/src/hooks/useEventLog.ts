@@ -20,6 +20,7 @@ export function useEventLog() {
         color: typeInfo.color,
         data,
         time: event.time,
+        deviceId: event.deviceId,
       }
     })
   }, [events])

@@ -1,4 +1,5 @@
 import type { Action, ActionCallbacks, ActionResult, BackAction, BaseAction, DoubleTapAction, FinishAction, HomeAction, LaunchAction, LongPressAction, SwipeAction, TakeOverAction, TapAction, TypeAction, WaitAction } from './types'
+import type { AgentContext } from '@/context'
 import { back, doubleTap, home, launchApp, longPress, swipe, tap } from '@/adb/device'
 import { typeText } from '@/adb/input'
 
@@ -27,9 +28,13 @@ export function createDoAction<T extends Omit<BaseAction, '_metadata'>>(action: 
  */
 export class ActionHandler {
   constructor(
-    private deviceId?: string,
+    private context: AgentContext,
     private callbacks: ActionCallbacks = {},
   ) {}
+
+  get deviceId() {
+    return this.context.getConfig().deviceId
+  }
 
   /**
    * Execute an action.

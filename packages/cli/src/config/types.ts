@@ -7,6 +7,7 @@ export interface AgentEvent {
   type: string
   data: unknown
   time: string
+  deviceId?: string
 }
 
 export type EventCallback = (data: unknown) => void
@@ -19,6 +20,7 @@ export interface AgentState {
   devices: DeviceInfo[]
   systemCheck: boolean | null
   apiCheck: boolean | null
+  currentDeviceId: string | undefined
 }
 
 export interface AgentActions {

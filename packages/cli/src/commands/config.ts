@@ -47,6 +47,13 @@ export const commands: CommandHandler[] = [
     },
   },
   {
+    name: 'devices',
+    description: 'View and select connected devices',
+    execute: (context) => {
+      context.navigate('/devices')
+    },
+  },
+  {
     name: 'abort',
     description: 'Abort the current task',
     execute: (context) => {

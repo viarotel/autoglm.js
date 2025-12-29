@@ -30,6 +30,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
   const [devices, setDevices] = useState<DeviceInfo[]>([])
   const [systemCheck, setSystemCheck] = useState<boolean | null>(null)
   const [apiCheck, setApiCheck] = useState<boolean | null>(null)
+  const [currentDeviceId, setCurrentDeviceId] = useState<string | undefined>(config.deviceId)
 
   const agentRef = useRef<AutoGLM | null>(null)
   const cleanupRef = useRef<(() => void)[]>([])
@@ -55,6 +56,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
           type,
           data: data.message ?? data,
           time: data.time,
+          deviceId: agentRef.current?.config.deviceId,
         },
       ])
     }
@@ -73,6 +75,12 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
         ])
         setVersion(versionInfo.success ? `v${versionInfo.version || 'Not Installed'}` : 'Not Installed')
         setDevices(deviceList)
+        if (deviceList.length > 0) {
+          agent.updateConfig({
+            deviceId: deviceList[0].deviceId,
+          })
+          setCurrentDeviceId(deviceList[0].deviceId)
+        }
       }
       catch {
         setVersion('Error')
@@ -175,6 +183,9 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     const agent = agentRef.current
     if (agent) {
       agent.updateConfig(newConfig)
+      if (newConfig.deviceId !== undefined) {
+        setCurrentDeviceId(newConfig.deviceId)
+      }
     }
   }, [])
 
@@ -186,6 +197,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     isRunning,
     currentTask,
     systemCheck,
+    currentDeviceId,
     abort,
     run,
     stop,
