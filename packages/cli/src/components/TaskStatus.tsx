@@ -7,7 +7,7 @@ interface TaskStatusProps {
   currentDeviceId?: string
 }
 
-export default function TaskStatus({ isRunning, currentTask, currentDeviceId }: TaskStatusProps) {
+export default function TaskStatus({ isRunning, currentTask }: TaskStatusProps) {
   if (!isRunning && !currentTask) {
     return null
   }
@@ -32,14 +32,14 @@ export default function TaskStatus({ isRunning, currentTask, currentDeviceId }: 
           <Text color="white">{currentTask}</Text>
         </Box>
       )}
-      {currentDeviceId && (
+      {/* {currentDeviceId && (
         <Box gap={2}>
           <Box width={8}>
             <Text color="gray">DEVICE:</Text>
           </Box>
           <Text color="white">{currentDeviceId}</Text>
         </Box>
-      )}
+      )} */}
     </Box>
   )
 }

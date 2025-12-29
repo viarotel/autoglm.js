@@ -113,6 +113,7 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
     if (!agent) {
       throw new Error('Agent not initialized')
     }
+    setEvents([])
     await agent.run(query)
   }, [])
 
