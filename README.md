@@ -17,6 +17,8 @@
 npx @autoglm.js/cli
 ```
 
+模型可以直接使用GLM免费提供的 [`autoglm-phone`](https://www.bigmodel.cn/glm-coding?ic=PWCU0E7KAJ) 模型。
+
 ## ✨ 特性
 
 - 🎯 **自然语言控制**: 通过简单的文字指令控制手机操作
