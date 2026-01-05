@@ -9,5 +9,6 @@ export default defineConfig({
   publint: true,
   external: [
     'autoglm.js',
+    'unzipper',
   ],
 })

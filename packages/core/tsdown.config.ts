@@ -12,5 +12,6 @@ export default defineConfig({
     '@autoglm.js/platform-tools-darwin',
     '@autoglm.js/platform-tools-linux',
     '@autoglm.js/platform-tools-windows',
+    'unzipper',
   ],
 })
