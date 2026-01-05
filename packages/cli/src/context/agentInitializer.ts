@@ -112,7 +112,6 @@ async function ensureConfigFileExists(configPath: string, defaultConfig: Record<
 async function checkModelApi(agent: AutoGLM, navigate: NavigateFunction): Promise<boolean> {
   try {
     const result = await agent.checkModelApi()
-    console.log(result)
     if (result.success) {
       return true
     }
