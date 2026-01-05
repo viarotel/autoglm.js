@@ -14,8 +14,12 @@ export function EventList() {
   const { events } = useEventLog()
   const { isCommand } = useUserInputStore()
 
-  const [isAtBottom, setIsAtBottom] = useState(true)
-  const userScrolledUp = useRef(false)
+  enum ScrollState {
+    AUTO_SCROLL,
+    USER_SCROLLED,
+  }
+
+  const [scrollState, setScrollState] = useState<ScrollState>(ScrollState.AUTO_SCROLL)
 
   const mergedEvents = useMemo(() => {
     const result: typeof events = []
@@ -44,54 +48,60 @@ export function EventList() {
     }
   }, [stdout])
 
-  // Check if scroll view is at bottom and update state
-  const checkAndUpdateBottom = useCallback(() => {
+  const checkAndUpdateScrollState = useCallback(() => {
     if (!scrollRef.current)
-      return true
+      return scrollState === ScrollState.AUTO_SCROLL
 
     const atBottom = scrollRef.current.getScrollOffset() >= scrollRef.current.getBottomOffset() - 1
-    setIsAtBottom(atBottom)
+
+    if (atBottom && scrollState === ScrollState.USER_SCROLLED) {
+      setScrollState(ScrollState.AUTO_SCROLL)
+    }
 
     return atBottom
-  }, [])
+  }, [scrollState])
 
   useInput((_input, key) => {
     if (!scrollRef.current)
       return
 
-    // Scroll up - disable auto-follow
+    // Scroll up - switch to user scrolled state
     if (key.upArrow) {
       scrollRef.current.scrollBy(-1)
-      userScrolledUp.current = !checkAndUpdateBottom()
+      const atBottom = checkAndUpdateScrollState()
+      if (!atBottom) {
+        setScrollState(ScrollState.USER_SCROLLED)
+      }
       return
     }
 
-    // Scroll down - re-enable auto-follow if at bottom
+    // Scroll down - check if we should return to auto scroll
     if (key.downArrow) {
       scrollRef.current.scrollBy(1)
-      if (checkAndUpdateBottom())
-        userScrolledUp.current = false
+      checkAndUpdateScrollState()
       return
     }
 
-    // Page up - disable auto-follow
+    // Page up - switch to user scrolled state
     if (key.pageUp) {
       const height = scrollRef.current.getViewportHeight() || 1
       scrollRef.current.scrollBy(-height)
-      userScrolledUp.current = !checkAndUpdateBottom()
+      const atBottom = checkAndUpdateScrollState()
+      if (!atBottom) {
+        setScrollState(ScrollState.USER_SCROLLED)
+      }
       return
     }
 
-    // Page down - re-enable auto-follow if at bottom
+    // Page down - check if we should return to auto scroll
     if (key.pageDown) {
       const height = scrollRef.current.getViewportHeight() || 1
       scrollRef.current.scrollBy(height)
-      if (checkAndUpdateBottom())
-        userScrolledUp.current = false
+      checkAndUpdateScrollState()
     }
   }, { isActive: !isCommand })
 
-  // Auto-scroll on new events (smart follow: only if at bottom or user hasn't scrolled up)
+  // Auto-scroll on new events (only when in auto scroll state)
   useEffect(() => {
     if (mergedEvents.length === 0)
       return
@@ -104,17 +114,15 @@ export function EventList() {
     }
 
     // Always scroll to bottom on task completion or error
-    if (lastEvent.type === EventType.TASK_COMPLETE || lastEvent.type === EventType.ERROR || lastEvent.type === EventType.ABORTED) {
+    if ([EventType.TASK_COMPLETE, EventType.ERROR, EventType.ABORTED].includes(lastEvent.type)) {
       scrollRef.current?.scrollToBottom()
-      setIsAtBottom(true)
-      userScrolledUp.current = false
     }
-    // Otherwise, only auto-scroll if user hasn't scrolled up
-    else if (isAtBottom || !userScrolledUp.current) {
+
+    // Otherwise, only auto-scroll if we're in auto scroll state
+    else if (scrollState === ScrollState.AUTO_SCROLL) {
       scrollRef.current?.scrollToBottom()
-      setIsAtBottom(true)
     }
-  }, [mergedEvents, isAtBottom])
+  }, [mergedEvents])
 
   return (
     <Box marginBottom={1} flexDirection="column">

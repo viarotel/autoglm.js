@@ -1,3 +1,4 @@
+import type { EventType } from 'autoglm.js'
 import type { AgentEvent } from '@/config/types'
 import { useCallback, useMemo, useState } from 'react'
 import { EVENT_TYPE_LABELS } from '@/constants'
@@ -15,7 +16,7 @@ export function useEventLog() {
       const data = formatEventData(event)
 
       return {
-        type: event.type,
+        type: event.type as EventType,
         label: typeInfo.label,
         color: typeInfo.color,
         data,
@@ -60,7 +61,7 @@ function formatEventData(event: AgentEvent): string {
 
     const formatters: Record<string, (value: unknown) => string> = {
       action: v => String(v),
-      start: v => `[${v}]`,
+      start: v => `: [${v}]`,
       end: v => `-> [${v}]`,
       app: v => `: ${v}`,
       element: v => `: [${v}]`,
