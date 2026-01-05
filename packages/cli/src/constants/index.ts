@@ -10,6 +10,7 @@ export const EVENT_TYPE_LABELS: Record<string, { label: string, color: string }>
   task_complete: { label: 'COMPLETE', color: 'green' },
   error: { label: 'ERROR', color: 'red' },
   aborted: { label: 'ABORTED', color: 'magenta' },
+  thinking_stream: { label: 'THINKING', color: 'yellow' },
 }
 
 export const DEFAULT_CONFIG = {

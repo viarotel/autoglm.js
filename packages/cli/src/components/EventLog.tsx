@@ -1,11 +1,14 @@
 import type { ScrollViewRef } from 'ink-scroll-view'
+import { EventType } from 'autoglm.js'
 import { Box, Text, useInput, useStdout } from 'ink'
 import { ScrollView } from 'ink-scroll-view'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEventLog } from '@/hooks/useEventLog'
 import { useUserInputStore } from '@/store/userInputStore'
 
 export function EventList() {
+  const { t } = useTranslation()
   const scrollRef = useRef<ScrollViewRef>(null)
   const { stdout } = useStdout()
   const { events } = useEventLog()
@@ -13,6 +16,24 @@ export function EventList() {
 
   const [isAtBottom, setIsAtBottom] = useState(true)
   const userScrolledUp = useRef(false)
+
+  const mergedEvents = useMemo(() => {
+    const result: typeof events = []
+    for (const event of events) {
+      const preIndex = result.length - 1
+      const previousEvent = result[preIndex]
+      if (event.type === EventType.THINKING_STREAM && result.length > 0 && previousEvent.type === EventType.THINKING_STREAM) {
+        result[preIndex] = {
+          ...result[preIndex],
+          data: result[preIndex].data + event.data,
+        }
+      }
+      else {
+        result.push(event)
+      }
+    }
+    return result
+  }, [events])
 
   // Handle terminal resize to remeasure scroll dimensions
   useEffect(() => {
@@ -72,13 +93,18 @@ export function EventList() {
 
   // Auto-scroll on new events (smart follow: only if at bottom or user hasn't scrolled up)
   useEffect(() => {
-    if (events.length === 0)
+    if (mergedEvents.length === 0)
       return
 
-    const lastEvent = events[events.length - 1]
+    const lastEvent = mergedEvents[mergedEvents.length - 1]
+
+    // Re-measure the last item if it's a thinking event (streaming content)
+    if (lastEvent.type === EventType.THINKING_STREAM) {
+      scrollRef.current?.remeasureItem(mergedEvents.length - 1)
+    }
 
     // Always scroll to bottom on task completion or error
-    if (lastEvent.type === 'task_complete' || lastEvent.type === 'error') {
+    if (lastEvent.type === EventType.TASK_COMPLETE || lastEvent.type === EventType.ERROR || lastEvent.type === EventType.ABORTED) {
       scrollRef.current?.scrollToBottom()
       setIsAtBottom(true)
       userScrolledUp.current = false
@@ -88,20 +114,20 @@ export function EventList() {
       scrollRef.current?.scrollToBottom()
       setIsAtBottom(true)
     }
-  }, [events, isAtBottom])
+  }, [mergedEvents, isAtBottom])
 
   return (
     <Box marginBottom={1} flexDirection="column">
       <Box marginBottom={1} justifyContent="space-between">
-        <Text color="gray" bold>ACTIVITY:</Text>
-        <Text color="gray" dimColor>↑↓ Scroll | PgUp/PgDn Page</Text>
+        <Text color="gray" bold>{t('eventLog.activity')}</Text>
+        <Text color="gray" dimColor>{t('eventLog.scrollHint')}</Text>
       </Box>
       <Box
         height={20}
         width="100%"
       >
         <ScrollView ref={scrollRef}>
-          {events.map((event, index) => (
+          {mergedEvents.map((event, index) => (
             <Box key={index} justifyContent="space-between" width="100%" marginBottom={1} alignItems="flex-start">
               <Box flexDirection="row">
                 <Box width={13}>

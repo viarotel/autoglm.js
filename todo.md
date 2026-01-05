@@ -2,12 +2,13 @@
 [x] 缓存上次的设备id
 [x] 任务列表跟随滚动
 [x] cli version
-[ ] 重构cli初始化能力
+[x] 重构cli初始化能力
 [x] 自动安装adb
 [x] 手机未连接提示
 [x] 自动安装adb keyboard
 [x] cli国际化
-[ ] 改为流式输出
+[x] 改为流式输出
+[x] ACTION显示更多信息
 [ ] publish to npm
 [ ] 官网
 [ ] 推广

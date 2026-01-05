@@ -52,16 +52,17 @@ export function AgentProvider({ children, config }: AgentProviderProps) {
       if (type === EventType.TASK_COMPLETE || type === EventType.ERROR || type === EventType.ABORTED) {
         setIsRunning(false)
       }
-
-      setEvents(prev => [
-        ...prev,
-        {
-          type,
-          data: data.message ?? data,
-          time: data.time,
-          deviceId: agentRef.current?.config.deviceId,
-        },
-      ])
+      if (type !== EventType.THINKING) {
+        setEvents(prev => [
+          ...prev,
+          {
+            type,
+            data: data.message ?? data,
+            time: data.time,
+            deviceId: agentRef.current?.config.deviceId,
+          },
+        ])
+      }
     }
 
     agent.on('*', handleAllEvents)

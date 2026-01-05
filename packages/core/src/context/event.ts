@@ -8,6 +8,7 @@ export enum EventType {
   TASK_COMPLETE = 'task_complete',
   ERROR = 'error',
   ABORTED = 'aborted',
+  THINKING_STREAM = 'thinking_stream',
 }
 
 export type MittEvents = Record<EventType, EventData>

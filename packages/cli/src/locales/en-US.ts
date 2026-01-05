@@ -129,4 +129,8 @@ export default {
   systemPrompt: {
     description: 'System prompt to guide AI behavior and response style',
   },
+  eventLog: {
+    activity: 'ACTIVITY:',
+    scrollHint: '↑↓ Scroll | PgUp/PgDn Page',
+  },
 }

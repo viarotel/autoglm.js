@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer'
+import { sleep } from '@autoglm.js/shared'
 import { runAdbCommand } from './utils'
 
 /**
@@ -63,7 +64,7 @@ export async function detectAndSetAdbKeyboard(deviceId?: string): Promise<string
     if (!currentIme.includes('com.android.adbkeyboard/.AdbIME')) {
       await setIme('com.android.adbkeyboard/.AdbIME', deviceId)
       // Wait for keyboard switch to take effect
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await sleep(300)
 
       // Warm up the keyboard by typing an empty string
       const encodedText = Buffer.from('', 'utf8').toString('base64')
@@ -98,7 +99,7 @@ export async function restoreKeyboard(ime: string, deviceId?: string): Promise<v
   try {
     await setIme(ime, deviceId)
     // Wait for keyboard restore to take effect
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await sleep(300)
   }
   catch (error) {
     // Silent failure - just log warning
@@ -115,10 +116,11 @@ export async function typeText(text: string, deviceId?: string): Promise<void> {
   const originalIme = await detectAndSetAdbKeyboard(deviceId)
 
   try {
+    await clearText(deviceId)
     // Encode and type the text
     const encodedText = Buffer.from(text, 'utf8').toString('base64')
     await runAdbCommand(deviceId, ['shell', 'am', 'broadcast', '-a', 'ADB_INPUT_B64', '--es', 'msg', encodedText])
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await sleep(300)
   }
   finally {
     // Always restore the original keyboard, even if typing failed
@@ -131,8 +133,6 @@ export async function typeText(text: string, deviceId?: string): Promise<void> {
  */
 export async function clearText(deviceId?: string): Promise<void> {
   // Send backspace key multiple times
-  for (let i = 0; i < 100; i++) {
-    await runAdbCommand(deviceId, ['shell', 'input', 'keyevent', '67'])
-  }
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await runAdbCommand(deviceId, ['shell', 'am', 'broadcast', '-a', 'ADB_CLEAR_TEXT'])
+  await sleep(300)
 }

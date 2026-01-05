@@ -99,10 +99,10 @@ export class ModelClient {
   }
 
   /**
-   * Send a request to the model.
+   * Send a request to the model with streaming support.
    */
   async request(messages: OpenAI.Chat.ChatCompletionMessageParam[], options?: { signal?: AbortSignal }): Promise<ModelResponse> {
-    const data = await this.client.chat.completions.create(
+    const stream = await this.client.chat.completions.create(
       {
         messages,
         model: this.config.model,
@@ -110,16 +110,67 @@ export class ModelClient {
         temperature: this.config.temperature,
         top_p: this.config.topP,
         frequency_penalty: this.config.frequencyPenalty,
-        stream: false,
+        stream: true,
       },
       { signal: options?.signal },
     )
-    const rawContent = data.choices[0].message.content
-    if (!rawContent) {
-      throw new Error('Empty response from model')
-    }
-    const [thinking, action] = this._parseResponse(rawContent)
 
+    let rawContent = ''
+    let buffer = ''
+    const actionMarkers = ['finish(message=', 'do(action=']
+    let inActionPhase = false
+
+    for await (const chunk of stream) {
+      if (chunk.choices.length === 0) {
+        continue
+      }
+
+      const content = chunk.choices[0].delta.content
+      if (content) {
+        rawContent += content
+
+        if (inActionPhase) {
+          continue
+        }
+
+        buffer += content
+
+        let markerFound = false
+        for (const marker of actionMarkers) {
+          if (buffer.includes(marker)) {
+            const thinkingPart = buffer.split(marker, 1)[0]
+            this.ctx.emit(EventType.THINKING_STREAM, thinkingPart)
+            inActionPhase = true
+            markerFound = true
+            break
+          }
+        }
+
+        if (markerFound) {
+          continue
+        }
+
+        let isPotentialMarker = false
+        for (const marker of actionMarkers) {
+          for (let i = 1; i < marker.length; i++) {
+            if (buffer.endsWith(marker.slice(0, i))) {
+              isPotentialMarker = true
+              break
+            }
+          }
+          if (isPotentialMarker) {
+            break
+          }
+        }
+
+        if (!isPotentialMarker) {
+          this.ctx.emit(EventType.THINKING_STREAM, buffer)
+          buffer = ''
+        }
+      }
+    }
+
+    const [thinking, action] = this._parseResponse(rawContent)
     this.ctx.emit(EventType.THINKING, thinking)
     return { thinking, action, rawContent }
   }

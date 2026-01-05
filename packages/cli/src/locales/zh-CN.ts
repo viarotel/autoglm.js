@@ -129,4 +129,8 @@ export default {
   systemPrompt: {
     description: '用于指导 AI 行为和响应风格的系统提示词',
   },
+  eventLog: {
+    activity: '活动日志:',
+    scrollHint: '↑↓ 滚动 | PgUp/PgDn 翻页',
+  },
 }

@@ -58,15 +58,21 @@ function formatEventData(event: AgentEvent): string {
   if (data && typeof data === 'object') {
     const typedData = data as Record<string, unknown>
 
-    if (typedData.thought) {
-      return String(typedData.thought)
+    const formatters: Record<string, (value: unknown) => string> = {
+      action: v => String(v),
+      start: v => `[${v}]`,
+      end: v => `-> [${v}]`,
+      app: v => `: ${v}`,
+      element: v => `: [${v}]`,
+      text: v => `: ${v}`,
+      duration: v => `: ${v}s`,
+      result: v => String(v),
     }
-    if (typedData.action) {
-      return String(typedData.action)
-    }
-    if (typedData.result) {
-      return String(typedData.result)
-    }
+
+    return Object.entries(formatters)
+      .filter(([key]) => typedData[key] != null)
+      .map(([key, format]) => format(typedData[key]))
+      .join('')
   }
 
   try {
