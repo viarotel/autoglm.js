@@ -6,6 +6,7 @@ import { parseAction } from '@/actions/parse'
 import { getCurrentApp, getScreenshot } from '@/adb'
 import { EventType } from '@/context'
 import { MessageBuilder, ModelClient } from '@/model/client'
+import { getFinishMessage } from '@/utils/finishMessage'
 
 export class PhoneAgent {
   private ctx: AgentContext
@@ -213,22 +214,17 @@ export class PhoneAgent {
 
       // Check if finished
       const finished = action._metadata === 'finish' || result.should_finish
-
+      const message = getFinishMessage(result)
       if (finished) {
-        // Check if action is FinishAction before accessing message
-        const actionMessage = action._metadata === 'finish' ? (action as any).message : undefined
-        const message = result.message || actionMessage || 'Task completed'
         this.ctx.emit(EventType.TASK_COMPLETE, message)
       }
 
-      // Check if action is FinishAction before accessing message
-      const actionMessage = action._metadata === 'finish' ? (action as any).message : undefined
       return {
         success: result.success,
         finished,
         action,
         thinking: response.thinking,
-        message: result.message || actionMessage,
+        message,
       }
     }
     catch (error) {
